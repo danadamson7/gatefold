@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2c2620"/>
+      <stop offset="1" stop-color="#0d0b08"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3cb92"/>
+      <stop offset="1" stop-color="#b8874e"/>
+    </linearGradient>
+    <radialGradient id="vinyl" cx=".5" cy=".5" r=".5">
+      <stop offset=".3" stop-color="#1a1714"/>
+      <stop offset="1" stop-color="#050404"/>
+    </radialGradient>
+  </defs>
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="url(#bg)"/>
+  <!-- record sliding out of a gatefold sleeve -->
+  <circle cx="300" cy="256" r="170" fill="url(#vinyl)" stroke="#000" stroke-width="4"/>
+  <g fill="none" stroke="#3a332b" stroke-width="3" opacity=".9">
+    <circle cx="300" cy="256" r="150"/><circle cx="300" cy="256" r="130"/><circle cx="300" cy="256" r="110"/><circle cx="300" cy="256" r="90"/>
+  </g>
+  <path d="M220 130a150 150 0 0 1 70-24" stroke="#8a7458" stroke-width="6" stroke-linecap="round" fill="none" opacity=".7"/>
+  <circle cx="300" cy="256" r="58" fill="url(#gold)"/>
+  <circle cx="300" cy="256" r="9" fill="#1a130b"/>
+  <rect x="70" y="86" width="190" height="340" rx="14" fill="url(#gold)"/>
+  <rect x="88" y="104" width="154" height="304" rx="8" fill="none" stroke="#1a130b" stroke-width="5" opacity=".55"/>
+  <path d="M165 330V180c22 5 46 20 46 46 0 9-3 16-8 22" fill="none" stroke="#1a130b" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="146" cy="330" rx="24" ry="18" transform="rotate(-20 146 330)" fill="#1a130b"/>
+</svg>

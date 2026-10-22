@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <title>Gatefold</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header id="topbar">
+    <div class="tb-side tb-left">
+      <button class="icon-btn" data-act="settings" title="Settings">{menu}</button>
+      <button class="icon-btn" data-act="search" title="Search (Ctrl+F)">{search}</button>
+    </div>
+    <nav id="tabs">
+      <button class="tab" data-act="tab" data-page="explore">{compass}<span>Explore</span></button>
+      <button class="tab" data-act="tab" data-page="artists">{clef}<span>Artists</span></button>
+      <button class="tab" data-act="tab" data-page="nowplaying">{record}<span>Now Playing</span></button>
+      <button class="tab" data-act="tab" data-page="playlists">{cassette}<span>Playlists</span></button>
+      <button class="tab" data-act="tab" data-page="songs">{note}<span>Songs</span></button>
+    </nav>
+    <div class="tb-side tb-right">
+      <button class="icon-btn win" data-act="win" data-cmd="minimize" title="Minimize">{minimize}</button>
+      <button class="icon-btn win" data-act="win" data-cmd="fullscreen" title="Full screen (F11)" id="fs-btn">{fullscreen}</button>
+      <button class="icon-btn win exit" data-act="win" data-cmd="close" title="Exit">{close}</button>
+    </div>
+    <div id="scanbar"><div class="fill"></div><span></span></div>
+  </header>
+
+  <main id="pages">
+    <section class="page" id="page-explore"></section>
+    <section class="page" id="page-artists"></section>
+    <section class="page" id="page-nowplaying"></section>
+    <section class="page" id="page-playlists"></section>
+    <section class="page" id="page-songs"></section>
+  </main>
+
+  <footer id="playerbar">
+    <div class="pb-left">
+      <button class="icon-btn" data-act="prev" title="Previous (Ctrl+←)">{prev}</button>
+      <button class="play-btn" data-act="toggle" title="Play / Pause (Space)" id="play-btn">{play}</button>
+      <button class="icon-btn" data-act="next" title="Next (Ctrl+→)">{next}</button>
+    </div>
+    <div class="pb-center">
+      <div class="pb-art" id="pb-art" data-act="tab" data-page="nowplaying"></div>
+      <div class="pb-info">
+        <div class="pb-title" id="pb-title"><b>Gatefold</b></div>
+        <div class="pb-progress">
+          <span class="t" id="t-cur">0:00</span>
+          <div class="bar" id="seekbar"><div class="track"><div class="fill" id="seek-fill"></div></div><div class="knob" id="seek-knob"></div></div>
+          <span class="t" id="t-dur">0:00</span>
+        </div>
+      </div>
+    </div>
+    <div class="pb-right">
+      <button class="icon-btn" data-act="mute" title="Mute" id="vol-icon">{volume}</button>
+      <input type="range" id="volume" min="0" max="100" step="1" aria-label="Volume">
+      <span class="vol-pct" id="vol-pct">80%</span>
+      <button class="icon-btn toggle-btn" data-act="repeat" title="Repeat" id="repeat-btn">{repeat}</button>
+      <button class="icon-btn toggle-btn" data-act="shuffle" title="Shuffle" id="shuffle-btn">{shuffle}</button>
+      <button class="icon-btn toggle-btn" data-act="eq" title="Equalizer" id="eq-btn">{eq}<span class="lbl">EQ</span></button>
+    </div>
+  </footer>
+
+  <div id="overlay-root"></div>
+</body>
+</html>

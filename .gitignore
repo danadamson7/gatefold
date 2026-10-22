@@ -1,0 +1,7 @@
+node_modules
+dist/
+test-library/
+shots/
+.testdata/
+vendor/
+shots-real/

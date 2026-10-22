@@ -1,0 +1,35 @@
+{
+  "name": "gatefold",
+  "productName": "Gatefold",
+  "version": "1.0.0",
+  "description": "An album-first music player for Linux and Windows",
+  "main": "src/main.mjs",
+  "desktopName": "gatefold.desktop",
+  "scripts": {
+    "start": "electron .",
+    "shots": "GATEFOLD_SHOT=shots GATEFOLD_USERDATA=.testdata GATEFOLD_FOLDERS=test-library electron .",
+    "dist:linux": "electron-builder --linux AppImage",
+    "dist:win": "electron-builder --win nsis"
+  },
+  "keywords": ["music", "player", "albums"],
+  "author": "ryand825",
+  "license": "MIT",
+  "repository": "github:ryand825/gatefold",
+  "homepage": "https://github.com/ryand825/gatefold",
+  "type": "commonjs",
+  "dependencies": {
+    "music-metadata": "^12.2.3"
+  },
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.gatefold.player",
+    "productName": "Gatefold",
+    "files": ["src/**/*", "package.json"],
+    "linux": { "target": "AppImage", "category": "AudioVideo", "icon": "build/icon.png" },
+    "win": { "target": "nsis", "icon": "build/icon.png", "extraResources": [{ "from": "vendor/ffmpeg/win32", "to": "ffmpeg" }] },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "artifactName": "Gatefold-Setup-${version}.${ext}" }
+  }
+}
