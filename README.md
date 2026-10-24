@@ -88,6 +88,10 @@ npm run dist:win                      # build the Windows installer
 
 The Windows build bundles `vendor/ffmpeg/win32/ffmpeg.exe`, which is not in git. Get it from the [BtbN FFmpeg builds](https://github.com/BtbN/FFmpeg-Builds/releases) (`ffmpeg-master-latest-win64-lgpl.zip` → `bin/ffmpeg.exe`, plus its `LICENSE.txt`). Building the Windows installer on Linux needs `wine` on the PATH.
 
+### Releases
+
+Pushing a tag like `v1.0.1` (matching the `version` in `package.json`) runs `.github/workflows/release.yml`: it builds the Windows installer on a Windows runner (downloading ffmpeg itself) and the Linux AppImage, then attaches both to a GitHub Release. You can also run it by hand from the Actions tab (Run workflow) to get the builds as downloadable artifacts without releasing.
+
 Built with [Electron](https://www.electronjs.org/) and [music-metadata](https://github.com/Borewit/music-metadata). The Windows installer includes [FFmpeg](https://ffmpeg.org/) (LGPL) for WMA/APE/ALAC playback.
 
 ## License
