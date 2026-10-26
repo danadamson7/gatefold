@@ -8,7 +8,7 @@ echo    GATEFOLD - CREATE YOUR WINDOWS SETUP PROGRAM
 echo =======================================================
 echo.
 echo This will download the necessary build software and create
-echo Gatefold-Setup-1.0.5.exe in this folder.
+echo Gatefold-Setup-1.1.0.exe in this folder.
 echo.
 echo Internet is required. It may download several hundred MB.
 echo The setup program is not digitally signed.
@@ -21,7 +21,7 @@ if not "%result%"=="0" (
  echo The script did not create a confirmed working installer.
 ) else (
  echo BUILD FINISHED.
- echo Open Gatefold-Setup-1.0.5.exe in this folder to install.
+ echo Open Gatefold-Setup-1.1.0.exe in this folder to install.
 )
 echo.
 pause

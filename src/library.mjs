@@ -117,7 +117,8 @@ function group(tracks, merge, roots) {
     t._dir = dir;
     // Tracks without an album-artist tag are grouped by folder first, then promoted to an artist key
     // if every track in that folder-album shares one artist (so split "Disc N" folders still merge).
-    const pk = t.albumArtistTag ? 'a:' + norm(t.albumArtistTag) + '|' + norm(title) : 'd:' + dir + '|' + norm(title);
+    const creditKey = String(t.albumArtistTag || '').split(';').map((v) => norm(v.trim())).filter(Boolean).sort().join(';');
+    const pk = creditKey ? 'a:' + creditKey + '|' + norm(title) : 'd:' + dir + '|' + norm(title);
     if (!prelim.has(pk)) prelim.set(pk, []);
     prelim.get(pk).push(t);
   }

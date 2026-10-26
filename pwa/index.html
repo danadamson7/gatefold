@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#17130f"><meta name="description" content="Gatefold mobile read-only album-first player">
+  <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icon-192.png"><link rel="stylesheet" href="style.css">
+  <title>Gatefold Mobile</title><script type="module" src="app.js"></script>
+</head>
+<body>
+<header class="brand"><img src="icon-192.png" alt="" width="34" height="34"><div><b>Gatefold</b><small>Mobile · read-only</small></div></header>
+<main>
+  <section class="setup" id="setup">
+    <h1>Your albums, anywhere</h1><p>Import metadata exported from Gatefold 1.1.0, then choose music files copied onto this device. This app cannot change song or album properties.</p>
+    <label class="button">Import Gatefold metadata JSON<input id="meta" type="file" accept=".json,application/json" hidden></label>
+    <label class="button secondary">Add music files<input id="audio-files" type="file" accept="audio/*,.mp3,.m4a,.flac,.ogg,.opus,.wav,.aac,.webm" multiple hidden></label>
+    <label class="button secondary">Add music folder (where supported)<input id="audio-folder" type="file" webkitdirectory multiple hidden></label>
+    <p id="notice" role="status" aria-live="polite">Music files remain on this device in private browser storage. Large libraries may need significant free space. The browser must support your audio format.</p>
+  </section>
+  <nav class="tabs"><button data-tab="albums" class="chosen">Albums</button><button data-tab="artists">Artists</button><button data-tab="playlists">Playlists</button><button data-tab="songs">Songs</button></nav>
+  <section class="filters"><input id="search" type="search" placeholder="Search your music…" aria-label="Search music"><select id="filter" aria-label="Filter by genre or mood"><option value="">All genres and moods</option></select></section>
+  <section id="catalog" aria-live="polite"><div class="empty">Import your library to begin.</div></section>
+</main>
+<footer class="player"><div id="current">Nothing playing</div><div class="controls"><button id="prev" aria-label="Previous song">⏮</button><button id="play" aria-label="Play or pause">▶</button><button id="next" aria-label="Next song">⏭</button></div><audio id="audio" controls preload="metadata"></audio></footer>
+</body></html>

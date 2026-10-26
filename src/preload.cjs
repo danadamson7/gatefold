@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('gf', {
   onScanProgress: on('scan:progress'),
   getUser: () => ipcRenderer.invoke('user:get'),
   saveUser: (json) => ipcRenderer.invoke('user:save', json),
+  exportMetadata: (json) => ipcRenderer.invoke('metadata:export', json),
   pickFolders: () => ipcRenderer.invoke('dialog:folder'),
   pickImage: () => ipcRenderer.invoke('image:pick'),
   lyrics: (id) => ipcRenderer.invoke('lyrics:get', id),

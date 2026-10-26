@@ -1,7 +1,8 @@
+import { createMetadataExport, restoreMetadata } from './transfer.js';
 // Overlays: context menus, modal dialogs, search, settings drawer, equalizer, toasts.
 import { S, saveUser, updateOverrides, updateAlbumOverrides, albumArt, artHtml, trackStats, albumStats, artistImage, placeholder } from './store.js';
 import { player, EQ_FREQS, EQ_PRESETS } from './player.js';
-import { $, esc, fmtTime, fmtLength, fmtDate, fmtAgo, fmtReleaseDate, emit, sortKey } from './util.js';
+import { $, esc, fmtTime, fmtLength, fmtDate, fmtAgo, emit, sortKey } from './util.js';
 import { icon } from './icons.js';
 
 const root = () => document.getElementById('overlay-root');
@@ -105,6 +106,11 @@ export async function songProperties(id, focus) {
   const t = S.tracks.get(id);
   if (!t) return;
   const a = S.albums.get(t.albumKey);
+  const index = a.tracks.findIndex((item) => item.id === id);
+  const navigate = (dir) => {
+    const next = a.tracks[index + dir];
+    if (next) songProperties(next.id);
+  };
   const st = trackStats(id);
   const ovLyrics = S.user.overrides[id]?.lyrics;
   const lyr = ovLyrics != null ? { text: ovLyrics } : await window.gf.lyrics(id);
@@ -113,6 +119,7 @@ export async function songProperties(id, focus) {
   const ed = (label, name, v) => `<label><span>${label}</span><input name="${name}" value="${esc(v)}"></label>`;
   const m = modal(`<form class="props">
     <header class="props-head">${artHtml(a, 'props-art')}<div><h2>${esc(t.title)}</h2><p>${esc(t.artist)} — ${esc(a.title)}</p></div>
+      <div class="props-nav"><button type="button" class="icon-btn" data-song-prev title="Previous song (←)" ${index <= 0 ? 'disabled' : ''}>←</button><small>${index + 1} / ${a.tracks.length}</small><button type="button" class="icon-btn" data-song-next title="Next song (→)" ${index >= a.tracks.length - 1 ? 'disabled' : ''}>→</button></div>
       <button type="button" class="icon-btn close-x" data-close>${icon('close')}</button></header>
     <div class="props-grid">
       ${ed('Track title', 'title', t.title)}
@@ -138,6 +145,16 @@ export async function songProperties(id, focus) {
   </form>`, 'wide');
   m.querySelectorAll('[data-close]').forEach((b) => { b.onclick = closeModal; });
   m.querySelector('[data-show]').onclick = () => window.gf.showFile(id);
+  m.querySelector('[data-song-prev]').onclick = () => navigate(-1);
+  m.querySelector('[data-song-next]').onclick = () => navigate(1);
+  m.addEventListener('keydown', (e) => {
+    if (!['ArrowLeft', 'ArrowRight'].includes(e.key) || e.ctrlKey || e.metaKey || e.altKey) return;
+    // Preserve caret and selection shortcuts while editing a text field.
+    if (e.target.closest('input, textarea, select, [contenteditable]')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(e.key === 'ArrowLeft' ? -1 : 1);
+  });
   const form = m.querySelector('form');
   if (focus) form.elements[focus]?.focus();
   form.onsubmit = (e) => {
@@ -301,7 +318,7 @@ export function openSearch() {
       const img = artistImage(a.name);
       return `<div class="sr" data-act="artist" data-name="${esc(a.name)}">${img ? `<img class="thumb" src="${esc(img)}" alt="">` : placeholder(a.name, 'thumb')}<span><b>${esc(a.name)}</b><small>${a.albums.length} albums</small></span></div>`;
     }).join(''))
-      + sec('Albums', albums.map((a) => `<div class="sr" data-act="open-album" data-key="${a.key}" data-ctx="album">${artHtml(a, 'thumb')}<span><b>${esc(a.title)}</b><small>${esc(a.artist)}${a.year ? ` · ${fmtReleaseDate(a)}` : ''}</small></span></div>`).join(''))
+      + sec('Albums', albums.map((a) => `<div class="sr" data-act="open-album" data-key="${a.key}" data-ctx="album">${artHtml(a, 'thumb')}<span><b>${esc(a.title)}</b><small>${esc(a.artist)}${a.year ? ` · ${a.year}` : ''}</small></span></div>`).join(''))
       + sec('Songs', songs.map((t) => `<div class="sr" data-act="open-album" data-tid="${t.id}" data-key="${t.albumKey}" data-ctx="track">${artHtml(S.albums.get(t.albumKey), 'thumb')}<span><b>${esc(t.title)}</b><small>${esc(t.artist)} — ${esc(t.albumTitle)}</small></span><em>${fmtTime(t.duration)}</em></div>`).join(''))
       || '<div class="empty small">No matches.</div>';
   };
@@ -367,11 +384,15 @@ export async function renderSettings(el = $('#settings'), handlers) {
       <div class="row"><button class="btn ghost" data-cache>${icon('trash')}Clear conversion cache</button></div>
     </section>
     <section><h3>Statistics</h3>
+      <div class="row"><button class="btn ghost" data-export>${icon('folder')}Export metadata…</button>
+        <button class="btn ghost" data-import>${icon('folder')}Import metadata…</button></div>
+      <p class="muted">Export song properties, album metadata, play counts and playlist membership as JSON. Audio files and custom images are not included. Importing replaces matching play counts; unmatched songs are skipped.</p>
+      <input data-import-file type="file" accept=".json,application/json" hidden>
       <div class="row"><button class="btn danger ghost" data-reset>${icon('refresh')}Reset all play counts</button></div>
     </section>
     <section><h3>Keyboard</h3>
       <dl class="keys"><dt>Space</dt><dd>Play / pause</dd><dt>Ctrl + ← / →</dt><dd>Previous / next song</dd><dt>Ctrl + 1–5</dt><dd>Switch page</dd>
-      <dt>Ctrl + F</dt><dd>Search</dd><dt>F11</dt><dd>Full screen</dd><dt>Esc</dt><dd>Close panel</dd></dl>
+      <dt>← / → (Song Properties, outside text fields)</dt><dd>Previous / next song in album</dd><dt>Ctrl + F</dt><dd>Search</dd><dt>F11</dt><dd>Full screen</dd><dt>Esc</dt><dd>Close panel</dd></dl>
     </section>
     <footer class="muted">Gatefold ${esc(S.info.version)} · album-first music player</footer>
   </div>`;
@@ -401,6 +422,27 @@ export async function renderSettings(el = $('#settings'), handlers) {
   el.querySelector('[data-cache]').onclick = async () => {
     await window.gf.clearCache();
     renderSettings();
+  };
+  el.querySelector('[data-export]').onclick = async () => {
+    if (!S.snapshot) return toast('Scan your library first');
+    try {
+      const exportFile = createMetadataExport(S.snapshot, S.user);
+      if (await window.gf.exportMetadata(JSON.stringify(exportFile, null, 2))) toast('Metadata exported');
+    } catch (err) { toast(`Export failed: ${err.message}`); }
+  };
+  const importInput = el.querySelector('[data-import-file]');
+  el.querySelector('[data-import]').onclick = () => importInput.click();
+  importInput.onchange = async () => {
+    const file = importInput.files?.[0];
+    if (!file) return;
+    try {
+      if (file.size > 100_000_000) throw new Error('File is too large');
+      const data = JSON.parse(await file.text());
+      if (!(await confirmBox('Import metadata?', 'Matching song overrides and play counts will be updated. Existing music files will not change.', 'Import'))) return;
+      const r = restoreMetadata(data);
+      toast(`Imported ${r.matched} tracks and ${r.playlists} playlists (${r.skipped} skipped)`);
+      renderSettings(el, handlers);
+    } catch (err) { toast(`Import failed: ${err.message}`); }
   };
   el.querySelector('[data-reset]').onclick = async () => {
     if (!(await confirmBox('Reset play counts?', 'This clears every play count and last-played date. Playlists are kept.', 'Reset'))) return;

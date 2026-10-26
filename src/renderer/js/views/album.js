@@ -1,12 +1,13 @@
 // Album card (grid tile) and album detail panel, shared by Artists, Explore and Search.
 import { S, artHtml, albumArt, trackStats } from '../store.js';
-import { esc, fmtLength, fmtTime, fmtReleaseDate, tintOf } from '../util.js';
+import { esc, fmtLength, fmtTime, tintOf, albumArtistNames } from '../util.js';
 import { icon } from '../icons.js';
 
-const same = (a, b) => a.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '') === b.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+const same = (a, b) => albumArtistNames(b).some((name) => a.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '') === name.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ''));
+const artistLinks = (value) => albumArtistNames(value).map((name) => `<a data-act="artist" data-name="${esc(name)}">${esc(name)}</a>`).join(' · ');
 
 export function albumMeta(a) {
-  return [fmtReleaseDate(a), fmtLength(a.duration)].filter(Boolean).join(' · ');
+  return [a.year || '', fmtLength(a.duration)].filter(Boolean).join(' · ');
 }
 
 export function albumCard(a, { showArtist = false, selected = false } = {}) {
@@ -51,7 +52,7 @@ export function albumDetail(a) {
     </div>
     <div class="av-main">
       <h1>${esc(a.title)} <button class="tri" data-act="play-album" data-key="${a.key}" title="Play album">${icon('play')}</button></h1>
-      <div class="av-sub"><a data-act="artist" data-name="${esc(a.artist)}">${esc(a.artist)}</a>${a.year ? ` (${fmtReleaseDate(a)})` : ''} · ${fmtLength(a.duration)}</div>
+      <div class="av-sub">${artistLinks(a.artist)}${a.year ? ` (${a.year || ''})` : ''} · ${fmtLength(a.duration)}</div>
       <div class="av-tools">
         <button class="chip" data-act="shuffle-album" data-key="${a.key}">${icon('shuffle')}Shuffle</button>
         <button class="chip" data-act="queue-album" data-key="${a.key}">${icon('queue')}Add to queue</button>

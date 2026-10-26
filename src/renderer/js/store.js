@@ -1,5 +1,5 @@
 // Application state: the library (from the main process) plus user data (settings, stats, playlists).
-import { debounce, emit, esc, sortKey, strHash } from './util.js';
+import { debounce, emit, esc, sortKey, strHash, albumArtistNames } from './util.js';
 
 export const S = {
   info: null,
@@ -92,15 +92,17 @@ export function setLibrary(snapshot) {
     delete a.comments;
   }
   S.albums = albums;
-  S.albumList = [...albums.values()].sort((x, y) => sortKey(x.artist).localeCompare(sortKey(y.artist)) || x.year - y.year);
+  S.albumList = [...albums.values()].sort((x, y) => byYear(x, y) || sortKey(x.artist).localeCompare(sortKey(y.artist)));
 
   S.artists = new Map();
   for (const a of S.albumList) {
-    let ar = S.artists.get(a.artist);
-    if (!ar) S.artists.set(a.artist, (ar = { name: a.artist, albums: [], trackCount: 0, duration: 0 }));
-    ar.albums.push(a);
-    ar.trackCount += a.tracks.length;
-    ar.duration += a.duration;
+    for (const name of albumArtistNames(a.artist)) {
+      let ar = S.artists.get(name);
+      if (!ar) S.artists.set(name, (ar = { name, albums: [], trackCount: 0, duration: 0 }));
+      ar.albums.push(a);
+      ar.trackCount += a.tracks.length;
+      ar.duration += a.duration;
+    }
   }
   for (const ar of S.artists.values()) ar.albums.sort(byYear);
 
@@ -112,7 +114,7 @@ export function setLibrary(snapshot) {
   emit('library');
 }
 
-export const byYear = (x, y) => (x.year || 9999) - (y.year || 9999) || x.title.localeCompare(y.title);
+export const byYear = (x, y) => (x.year || 9999) - (y.year || 9999) || (x.month || 0) - (y.month || 0) || (x.day || 0) - (y.day || 0) || x.title.localeCompare(y.title);
 
 // ---- art ----
 export function albumArt(album, thumb = true) {

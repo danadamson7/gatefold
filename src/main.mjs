@@ -162,6 +162,19 @@ function registerIpc() {
   });
   ipcMain.handle('user:get', () => readUser());
   ipcMain.handle('user:save', (_e, json) => saveUser(json));
+  ipcMain.handle('metadata:export', async (_e, json) => {
+    if (typeof json !== 'string' || json.length > 100_000_000) throw new Error('Invalid metadata export');
+    const data = JSON.parse(json);
+    if (data?.format !== 'gatefold-metadata' || data?.version !== 1) throw new Error('Invalid Gatefold metadata file');
+    const result = await dialog.showSaveDialog(win, {
+      title: 'Export Gatefold library metadata',
+      defaultPath: 'Gatefold-metadata.json',
+      filters: [{ name: 'Gatefold metadata (JSON)', extensions: ['json'] }],
+    });
+    if (result.canceled || !result.filePath) return false;
+    await fsp.writeFile(result.filePath, json, 'utf8');
+    return true;
+  });
   ipcMain.handle('dialog:folder', async () => {
     const r = await dialog.showOpenDialog(win, { properties: ['openDirectory', 'multiSelections'] });
     return r.canceled ? [] : r.filePaths;

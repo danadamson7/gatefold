@@ -1,4 +1,4 @@
-> **Gatefold v1.0.5:** playlist artwork is 30% larger than v1.0.4, playlist information and buttons sit below the cover, and the song table is to the right on wide windows. All earlier Artists and Now Playing improvements are retained. See `CHANGELOG-REQUESTED-CHANGES.md`.
+> **Gatefold v1.1.0:** new metadata transfer, full release-date sorting, multi-artist credits, genre/mood random-song filters, queue disc subtitles, 20% larger playlist artwork and a separate read-only Android PWA. See `CHANGELOG-REQUESTED-CHANGES.md`.
 
 # Gatefold
 
@@ -11,7 +11,7 @@ An album-first music player for Windows and Linux. Gatefold is built around albu
 This modified source package includes `BUILD_WINDOWS_INSTALLER.cmd`.
 On a 64-bit Windows 10 or 11 PC, extract the ZIP and double-click that
 file. The script downloads the necessary tools, runs the tests and
-attempts to create `Gatefold-Setup-1.0.5.exe` alongside it. An internet
+attempts to create `Gatefold-Setup-1.1.0.exe` alongside it. An internet
 connection is required. See `HOW_TO_CREATE_INSTALLER.txt` for details.
 
 **This ZIP is not itself an installer.** A Windows build must succeed before
@@ -22,11 +22,11 @@ Windows in the environment where the modification was prepared.
 
 ## Installing on Windows
 
-**For Gatefold v1.0.5, download the installer from the latest successful [Windows installer (CI)](https://github.com/danadamson7/gatefold/actions/workflows/build-windows-installer.yml) workflow run (under Artifacts).** A GitHub Release may also include an installer after a version tag is built.
+**Download Gatefold v1.1.0 from the successful Windows installer GitHub Actions workflow (Actions → Windows installer (CI) → Artifacts).** A release may also be published after a version tag is built.
 
-1. Download the `Gatefold-Setup-Windows` artifact from the successful GitHub Actions run, extract its ZIP, and locate `Gatefold-Setup-1.0.5.exe`.
+1. Download the `Gatefold-Setup-Windows` artifact from the latest successful [Windows installer workflow](https://github.com/danadamson7/gatefold/actions/workflows/build-windows-installer.yml); extract its ZIP to find `Gatefold-Setup-1.1.0.exe`.
 2. Double-click the downloaded file.
-3. Windows may show a blue **"Windows protected your PC"** box. This app is not code-signed. Verify the installer comes from your repository's successful build before deciding whether to click **More info** and **Run anyway**.
+3. Windows may show a blue **"Windows protected your PC"** box. This happens because the app isn't signed with a paid certificate, not because anything is wrong. Click **More info**, then **Run anyway**.
 4. Choose whether to install for just you or everyone, pick a folder (the default is fine), and click **Install**.
 5. Start **Gatefold** from the Start menu or the desktop shortcut.
 6. On first launch Gatefold scans your **Music** folder (`C:\Users\<you>\Music`). A thin gold bar under the tabs shows progress.
@@ -34,13 +34,13 @@ Windows in the environment where the modification was prepared.
 
 That's it. Everything needed, including the converter for **WMA** files, is in the installer.
 
-**Updating:** download the newer installer from a successful GitHub Actions build or a published GitHub Release and run it; your play counts and playlists are kept.
+**Updating:** download the newer installer from Releases and run it; your play counts and playlists are kept.
 **Uninstalling:** *Settings → Apps → Installed apps → Gatefold → Uninstall*. Your play counts and playlists stay in `%APPDATA%\Gatefold`. Delete that folder too if you want everything gone.
 
 ## Installing on Linux
 
-1. Once a Linux release has been built and published, download its `.AppImage` from the [Releases page](https://github.com/danadamson7/gatefold/releases).
-2. Make it executable: right-click → Properties → *Allow executing*, or `chmod +x Gatefold-1.0.5.AppImage`.
+1. When a Linux build is published, download its `.AppImage` from the [Releases page](https://github.com/danadamson7/gatefold/releases).
+2. Make it executable: right-click → Properties → *Allow executing*, or `chmod +x Gatefold-1.1.0.AppImage`.
 3. Double-click it to run. It scans `~/Music` on first launch.
 
 WMA files need `ffmpeg` installed (`sudo apt install ffmpeg`, `sudo dnf install ffmpeg`, etc.). Most distros already have it.
@@ -94,16 +94,15 @@ MP3, FLAC, WMA, M4A/AAC, Ogg Vorbis, Opus, WAV, and also APE and ALAC. WMA, APE 
 
 ---
 
-## Downloading the latest Windows build from GitHub
+## Download the latest Windows installer from GitHub
 
-The Windows installer is built automatically on GitHub Actions whenever code is pushed to the `main` branch. No software development tools are required on your PC to download the installer.
+Whenever a commit is pushed to `main`, GitHub Actions will try to build the Windows setup executable. You can also start it manually:
 
-1. Open [Actions → Windows installer (CI)](https://github.com/danadamson7/gatefold/actions/workflows/build-windows-installer.yml).
-2. Open the latest successful run (green checkmark); under **Artifacts**, download **Gatefold-Setup-Windows**.
-3. Extract the downloaded ZIP and run `Gatefold-Setup-1.0.5.exe` on Windows.
-4. To request a fresh build without making changes, click **Run workflow** on the Actions page (requires repository permissions).
+1. Open [Windows installer (CI)](https://github.com/danadamson7/gatefold/actions/workflows/build-windows-installer.yml).
+2. Open the latest successful run and download the `Gatefold-Setup-Windows` artifact.
+3. Extract its ZIP and run `Gatefold-Setup-1.1.0.exe` on Windows.
 
-The Windows installer is **unsigned**, so Windows SmartScreen may ask for confirmation. If a build fails, open its run in Actions to see the error logs. The existing [Release workflow](https://github.com/danadamson7/gatefold/actions/workflows/release.yml) builds Windows and Linux installers for version tags. For future versions, update the version in `package.json` and `package-lock.json` and use a matching version tag (such as `v1.0.6`).
+The executable is not code-signed, so Windows SmartScreen may show a warning. The existing `release.yml` builds Windows and Linux release packages from version tags. For v1.0.6, update the version in `package.json` and `package-lock.json` and publish the new code using the same GitHub repository.
 
 ---
 
@@ -128,3 +127,11 @@ Built with [Electron](https://www.electronjs.org/) and [music-metadata](https://
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Gatefold Mobile (Android PWA)
+
+The `pwa/` directory contains a **read-only**, offline-capable Android music browser/player. It does not change album/song properties or desktop settings. It **does not automatically stream from Windows**: use Settings → Statistics → Export metadata in Gatefold, copy the JSON and audio files to the phone, then import them into the PWA. Unsupported browser codecs require audio conversion. For install steps and GitHub Pages hosting, see [`pwa/README.md`](pwa/README.md).
+
+## Metadata transfer between Gatefold installations
+
+Settings → Statistics → **Export metadata** creates a portable JSON file with song and album overrides, play counts, timestamps, and playlist membership, without audio or custom art. On another installation, scan your music folder first, then use Settings → Statistics → **Import metadata**. Matching songs keep their play counts and edited fields. Filename/album/disc/track/duration identifiers are used when original paths differ; unmatched and ambiguous songs are skipped. Re-importing the same export replaces matched statistics instead of adding counts.

@@ -1,8 +1,8 @@
 import { S, loadUser, saveUser, setLibrary, playlist, createPlaylist, addToPlaylist, albumArt, artHtml, SONG_COLUMNS } from './store.js';
 import { player } from './player.js';
-import { $, $$, esc, fmtTime, on, emit, shuffle } from './util.js';
+import { $, $$, esc, fmtTime, on, emit, shuffle, albumArtistNames } from './util.js';
 import { icon } from './icons.js';
-import { renderExplore, exploreData, rerollRandom } from './views/explore.js';
+import { renderExplore, exploreData, rerollRandom, randomSongIds } from './views/explore.js';
 import { renderArtists, scrollArtistIntoView, sortedArtists } from './views/artists.js';
 import { renderNowPlaying, syncLyrics, invalidateLyrics } from './views/nowplaying.js';
 import { renderPlaylists } from './views/playlists.js';
@@ -56,7 +56,7 @@ function openAlbum(key, trackId = null) {
   if (!a) return;
   saveGridScroll();
   const fromAll = S.ui.page === 'artists' && S.ui.artist == null;
-  if (!fromAll) S.ui.artist = a.artist;
+  if (!fromAll && !albumArtistNames(a.artist).includes(S.ui.artist)) S.ui.artist = albumArtistNames(a.artist)[0];
   S.ui.album = key;
   S.ui.lastAlbum = key;
   go('artists');
@@ -81,7 +81,7 @@ function openArtist(name) {
 // ---------------- play helpers ----------------
 const albumIds = (key) => S.albums.get(key)?.tracks.map((t) => t.id) || [];
 const albumSource = (key) => ({ type: 'album', id: key, label: S.albums.get(key)?.title });
-const artistIds = (name) => (name ? S.artists.get(name)?.albums : [...S.albumList]).flatMap((a) => a.tracks.map((t) => t.id));
+const artistIds = (name) => (name ? (S.artists.get(name)?.albums || []) : [...S.albumList]).flatMap((a) => a.tracks.map((t) => t.id));
 const artistSource = (name) => ({ type: 'artist', id: name, label: name || 'All Artists' });
 const playlistSource = (pl) => ({ type: 'playlist', id: pl.id, label: pl.name });
 
@@ -98,10 +98,10 @@ function playPlaylist(id, start = 0, shuffled = false) {
 }
 
 function playRandomFrom(firstId) {
-  const all = [...S.tracks.keys()];
-  if (!all.length) return;
+  const all = randomSongIds();
+  if (!all.length) return toast('No songs match this genre or mood');
   const first = firstId || all[Math.floor(Math.random() * all.length)];
-  player.playList([first, ...shuffle(all.filter((id) => id !== first))], 0, { type: 'random', label: 'Random songs' });
+  player.playList([first, ...shuffle(all.filter((id) => id !== first))], 0, { type: 'random', label: S.ui.randomFilter || 'Random songs' });
 }
 
 function quickplay(col) {
@@ -300,7 +300,7 @@ function trackMenu(d) {
     inPlaylist ? { label: `Remove from “${inPlaylist.name}”`, icon: 'trash', act: () => { inPlaylist.tracks.splice(+d.idx, 1); saveUser(); emit('playlists'); } } : null,
     { sep: true },
     { label: 'Go to album', icon: 'record', act: () => openAlbum(t.albumKey) },
-    { label: 'Go to artist', icon: 'clef', act: () => openArtist(t.albumArtist) },
+    { label: 'Go to artist', icon: 'clef', act: () => openArtist(albumArtistNames(t.albumArtist)[0]) },
     { sep: true },
     { label: 'Song properties…', icon: 'info', act: () => songProperties(t.id) },
     { label: 'Show in folder', icon: 'folder', act: () => window.gf.showFile(t.id) },
@@ -325,7 +325,7 @@ const MENUS = {
       { label: 'Add to queue', icon: 'queue', act: () => player.enqueue(albumIds(a.key)) },
       { label: 'Add to playlist', icon: 'cassette', sub: playlistSubmenu(() => albumIds(a.key)) },
       { sep: true },
-      { label: 'Go to artist', icon: 'clef', act: () => openArtist(a.artist) },
+      { label: 'Go to artist', icon: 'clef', act: () => openArtist(albumArtistNames(a.artist)[0]) },
       { label: 'Change album art…', icon: 'image', act: () => changeAlbumArt(a.key) },
       S.user.albumArt[a.key] ? { label: 'Use original art', icon: 'refresh', act: () => { delete S.user.albumArt[a.key]; saveUser(); emit('art'); } } : null,
       { label: 'Album properties…', icon: 'info', act: () => albumProperties(a.key) },

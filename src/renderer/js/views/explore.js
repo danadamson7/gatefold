@@ -5,6 +5,19 @@ import { icon } from '../icons.js';
 import { albumMeta } from './album.js';
 
 let randomSeed = Date.now();
+export const randomChoices = () => [...new Map([...S.tracks.values()].flatMap((t) => [
+  ...String(t.genre || '').split(/[,;/]/).map((v) => v.trim()).filter(Boolean).map((v) => `genre:${v}`),
+  ...String(t.mood || '').split(/[,;/]/).map((v) => v.trim()).filter(Boolean).map((v) => `mood:${v}`),
+]).map((v) => [v.toLocaleLowerCase(), v]))].map(([_, v]) => v).sort((a, b) => a.localeCompare(b));
+export function randomSongIds() {
+  const value = S.ui.randomFilter || '';
+  if (!value) return [...S.tracks.keys()];
+  const split = value.indexOf(':');
+  const field = value.slice(0, split), term = value.slice(split + 1).toLocaleLowerCase();
+  return [...S.tracks.values()].filter((t) => ['genre','mood'].includes(field) &&
+    String(t[field] || '').split(/[,;/]/).some((v) => v.trim().toLocaleLowerCase() === term)).map((t) => t.id);
+}
+
 export const rerollRandom = () => { randomSeed = Date.now(); };
 
 export function exploreData() {
@@ -18,7 +31,7 @@ export function exploreData() {
   const forgotten = withStats.filter((x) => x.n > 0 && x.last < cutoff).sort((x, y) => y.n - x.n || x.last - y.last).slice(0, 24);
   const day = Math.floor(Date.now() / 86400000);
   const never = shuffle(withStats.filter((x) => x.n === 0), rng(day)).slice(0, 24);
-  const songs = shuffle([...S.tracks.keys()], rng(randomSeed)).slice(0, 14);
+  const songs = shuffle(randomSongIds(), rng(randomSeed)).slice(0, 14);
   return { top, fresh, forgotten, never, songs };
 }
 
@@ -40,7 +53,9 @@ function column(id, ic, title, sub, items, empty) {
   return `<section class="xcol" data-col="${id}">
     <header>
       <div class="xhead">${icon(ic)}<div><h2>${title}</h2><p>${sub}</p></div></div>
-      <button class="qp" data-act="quickplay" data-col="${id}" title="Quick play">${icon(id === 'random' ? 'dice' : 'play')}</button>
+      ${id === 'random' ? `<select class="random-filter" aria-label="Random song genre or mood" title="Limit random songs by genre or mood">
+        <option value="">All songs</option>${randomChoices().map((v) => `<option value="${esc(v)}"${S.ui.randomFilter === v ? ' selected' : ''}>${esc(v.startsWith('genre:') ? 'Genre: ' + v.slice(6) : 'Mood: ' + v.slice(5))}</option>`).join('')}</select>`
+        : `<button class="qp" data-act="quickplay" data-col="${id}" title="Quick play">${icon('play')}</button>`}
     </header>
     <div class="xlist">${items || `<div class="empty">${empty}</div>`}</div>
   </section>`;
@@ -78,4 +93,9 @@ export function renderExplore(el) {
     ${column('never', 'headphones', 'Never Played', 'Albums waiting for a first spin', neverItems, 'You have played every album. Impressive.')}
     ${column('random', 'dice', 'Random Song', 'Feeling lucky?', randomCol, '')}
   </div>`;
+  el.querySelector('.random-filter')?.addEventListener('change', (e) => {
+    S.ui.randomFilter = e.target.value;
+    rerollRandom();
+    renderExplore(el);
+  });
 }

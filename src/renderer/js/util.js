@@ -136,3 +136,6 @@ function rgbToHsl(r, g, b) {
   else h = (r - g) / d + 4;
   return [Math.round(h * 60), s, l];
 }
+
+// Semicolon-separated album-artist credits are indexed independently.
+export const albumArtistNames = (value) => [...new Set(String(value || 'Unknown Artist').split(';').map((n) => n.trim()).filter(Boolean))];
