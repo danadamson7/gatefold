@@ -1,0 +1,28 @@
+GATEFOLD - WINDOWS SETUP PROGRAM (VERSION 1.0.5)
+==================================================
+
+These are the modified Gatefold program files, NOT the finished .exe.
+To generate a Windows installer without typing commands:
+
+1. On a Windows 10/11 64-bit computer, unzip this package.
+2. Double-click BUILD_WINDOWS_INSTALLER.cmd.
+3. Follow the on-screen progress (internet is required).
+4. When successful, double-click Gatefold-Setup-1.0.5.exe
+   in the same extracted folder to install Gatefold.
+
+The builder downloads Node.js, the app dependencies, Electron,
+installer tools and LGPL FFmpeg; this can use several hundred MB.
+It does not need you to install programming software separately.
+
+IMPORTANT: This build method is provided but has not been run on a
+Windows PC in this environment. You will know whether it succeeded
+only when it produces the .exe file without an error.
+
+An unsigned self-built setup program may trigger Windows SmartScreen.
+Only run it if you trust the modified source and the dependencies.
+
+Your existing Gatefold user settings and music library should remain
+under the same app ID after you install the updated version.
+
+If any step fails, copy the error from the black window and send it
+to ChatGPT so the build script can be corrected.

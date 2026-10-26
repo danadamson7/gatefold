@@ -51,7 +51,7 @@ function saveGridScroll() {
   if (S.ui.page === 'artists' && !S.ui.album) S.ui.gridScroll = $('#artists-content')?.scrollTop || 0;
 }
 
-function openAlbum(key) {
+function openAlbum(key, trackId = null) {
   const a = S.albums.get(key);
   if (!a) return;
   saveGridScroll();
@@ -61,6 +61,13 @@ function openAlbum(key) {
   S.ui.lastAlbum = key;
   go('artists');
   if (!fromAll) scrollArtistIntoView(pageEl('artists'));
+  if (trackId) {
+    const trackRow = [...pageEl('artists').querySelectorAll('.trow')].find((r) => r.dataset.tid === trackId);
+    if (trackRow) {
+      trackRow.classList.add('search-target');
+      trackRow.scrollIntoView({ block: 'center' });
+    }
+  }
 }
 
 function openArtist(name) {
@@ -104,7 +111,7 @@ function quickplay(col) {
   if (col === 'top') {
     const x = pick(d.top);
     if (!x) return toast('Nothing played yet — try Never Played');
-    return x.p ? playPlaylist(x.p.id) : playAlbum(x.a.key);
+    return playAlbum(x.a.key);
   }
   if (col === 'new') return d.fresh[0] && playAlbum(d.fresh[0].key);
   if (col === 'forgotten') return d.forgotten[0] ? playAlbum(d.forgotten[0].a.key) : toast('No forgotten albums yet');
@@ -175,7 +182,7 @@ const A = {
     saveUser();
     render('artists');
   },
-  'open-album': (d) => openAlbum(d.key),
+  'open-album': (d) => openAlbum(d.key, d.tid),
   'close-album': () => {
     S.ui.album = null;
     render('artists');
@@ -487,12 +494,14 @@ async function addFolder() {
 }
 
 // ---------------- keyboard ----------------
+let artistPrefix = '';
+let artistTypedAt = 0;
 document.addEventListener('keydown', (e) => {
   const typing = e.target.closest?.('input, textarea, select');
   if (e.key === 'Escape') {
+    if ($('#search-panel')) return closeSearch();
     if ($('#ctxmenu')) return closeMenu();
     if ($('.modal-wrap')) return closeModal();
-    if ($('#search-panel')) return closeSearch();
     if ($('#eq-panel')) return closeEq();
     if ($('#settings')) return closeSettings();
     if (S.ui.page === 'artists' && S.ui.album) return A['close-album']();
@@ -508,6 +517,23 @@ document.addEventListener('keydown', (e) => {
     return openSearch();
   }
   if (typing) return;
+  // Album Artist type-ahead works whenever that sidebar has keyboard focus.
+  if (S.ui.page === 'artists' && e.target.closest?.('.artist-side-list') &&
+      e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && /[\p{L}\p{N} ]/u.test(e.key)) {
+    e.preventDefault();
+    const now = Date.now();
+    artistPrefix = now - artistTypedAt > 900 ? e.key : artistPrefix + e.key;
+    artistTypedAt = now;
+    const artists = sortedArtists();
+    const findMatch = (q) => artists.find((a) => a.name.toLocaleLowerCase().startsWith(q.toLocaleLowerCase()));
+    let match = findMatch(artistPrefix);
+    if (!match) {
+      artistPrefix = e.key;
+      match = findMatch(artistPrefix);
+    }
+    if (match) openArtist(match.name);
+    return;
+  }
   if (e.key === ' ') {
     e.preventDefault();
     player.toggle();

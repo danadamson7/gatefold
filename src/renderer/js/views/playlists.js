@@ -39,8 +39,10 @@ function detail(p) {
         </div>
       </div>
     </header>
-    ${rows ? `<div class="ptable"><div class="phead"><span>#</span><span>Title</span><span>Artist</span><span>Album</span><span>Length</span></div>${rows}</div>`
-    : '<div class="empty">This playlist is empty. Right-click any song or album and choose <b>Add to playlist</b>.</div>'}
+    <section class="pl-tracks" aria-label="Songs in ${esc(p.name)}">
+      ${rows ? `<div class="ptable"><div class="phead"><span>#</span><span>Title</span><span>Artist</span><span>Album</span><span>Length</span></div>${rows}</div>`
+      : '<div class="empty">This playlist is empty. Right-click any song or album and choose <b>Add to playlist</b>.</div>'}
+    </section>
   </div>`;
 }
 

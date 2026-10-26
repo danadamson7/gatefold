@@ -1,0 +1,51 @@
+name: Windows installer (CI)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-installer:
+    runs-on: windows-latest
+    steps:
+      - name: Check out Gatefold source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Download FFmpeg (LGPL build, bundled with installer)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-lgpl.zip'
+          Invoke-WebRequest -Uri $url -OutFile ffmpeg.zip
+          Expand-Archive -Path ffmpeg.zip -DestinationPath ffmpeg-extracted -Force
+          $exe = Get-ChildItem ffmpeg-extracted -Filter ffmpeg.exe -Recurse | Select-Object -First 1
+          if (-not $exe) { throw 'FFmpeg executable missing from downloaded archive' }
+          New-Item -ItemType Directory -Force -Path vendor/ffmpeg/win32 | Out-Null
+          Copy-Item $exe.FullName vendor/ffmpeg/win32/ffmpeg.exe
+          $license = Get-ChildItem ffmpeg-extracted -Filter LICENSE.txt -Recurse | Select-Object -First 1
+          if ($license) { Copy-Item $license.FullName vendor/ffmpeg/win32/FFMPEG-LICENSE.txt }
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run regression tests
+        run: npm test
+      - name: Build Windows setup EXE
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run dist:win -- --x64 --publish never
+      - name: Upload downloadable Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Gatefold-Setup-Windows
+          path: dist/Gatefold-Setup-*.exe
+          if-no-files-found: error
+          retention-days: 30

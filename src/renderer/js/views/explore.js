@@ -10,10 +10,9 @@ export const rerollRandom = () => { randomSeed = Date.now(); };
 export function exploreData() {
   const albums = S.albumList;
   const withStats = albums.map((a) => ({ a, ...albumStats(a) }));
-  const plTop = S.user.playlists
-    .map((p) => ({ p, ...(S.user.stats.playlists[p.id] || { n: 0, last: 0 }) }))
-    .filter((x) => x.n > 0);
-  const top = [...withStats.filter((x) => x.n > 0), ...plTop].sort((x, y) => y.n - x.n).slice(0, 5);
+  const top = withStats.filter((x) => x.n > 0)
+    .sort((x, y) => y.n - x.n || x.a.title.localeCompare(y.a.title) || x.a.key.localeCompare(y.a.key))
+    .slice(0, 25);
   const fresh = [...albums].sort((x, y) => y.addedAt - x.addedAt).slice(0, 24);
   const cutoff = Date.now() - S.user.settings.forgottenDays * 86400000;
   const forgotten = withStats.filter((x) => x.n > 0 && x.last < cutoff).sort((x, y) => y.n - x.n || x.last - y.last).slice(0, 24);
@@ -57,7 +56,7 @@ export function renderExplore(el) {
   }
   const d = exploreData();
   const plays = (n) => `${n} play${n === 1 ? '' : 's'}`;
-  const topItems = d.top.map((x, i) => (x.p ? playlistRow(x.p, plays(x.n), i === 0) : albumRow(x.a, plays(x.n), i === 0))).join('');
+  const topItems = d.top.map((x, i) => albumRow(x.a, `#${i + 1} · ${plays(x.n)}`, i === 0)).join('');
   const newItems = d.fresh.map((a, i) => albumRow(a, `Added ${fmtDate(a.addedAt)}`, i === 0)).join('');
   const forgotItems = d.forgotten.map((x, i) => albumRow(x.a, `${plays(x.n)} · last ${fmtAgo(x.last)}`, i === 0)).join('');
   const neverItems = d.never.map((x, i) => albumRow(x.a, albumMeta(x.a), i === 0)).join('');
@@ -73,7 +72,7 @@ export function renderExplore(el) {
     ${songItems}<button class="btn ghost reroll" data-act="reroll">${icon('refresh')}Deal new songs</button>`;
 
   el.innerHTML = `<div class="explore">
-    ${column('top', 'flame', 'Most Played', 'Your top albums & playlists', topItems, 'Albums and playlists you play most will rank here.')}
+    ${column('top', 'flame', 'Most Played', 'Your top 25 albums', topItems, 'Albums you play most will rank here.')}
     ${column('new', 'sparkle', 'Newly Added', 'Fresh in the library', newItems, '')}
     ${column('forgotten', 'hourglass', 'Forgotten Listens', `Loved, but not for ${S.user.settings.forgottenDays}+ days`, forgotItems, `Albums you've played before but haven't heard in ${S.user.settings.forgottenDays} days show up here.`)}
     ${column('never', 'headphones', 'Never Played', 'Albums waiting for a first spin', neverItems, 'You have played every album. Impressive.')}

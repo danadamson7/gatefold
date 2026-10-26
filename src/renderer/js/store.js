@@ -64,22 +64,32 @@ export function setLibrary(snapshot) {
     let a = albums.get(t.albumKey);
     if (!a) {
       a = { key: t.albumKey, title: t.albumTitle, artist: t.albumArtist, tracks: [], duration: 0, addedAt: 0,
-        art: snapshot.albums[t.albumKey]?.art || null, years: new Map(), genres: new Map() };
+        art: snapshot.albums[t.albumKey]?.art || null, years: new Map(), dates: new Map(),
+        genres: new Map(), comments: new Map() };
       albums.set(t.albumKey, a);
     }
     a.tracks.push(t);
     a.duration += t.duration || 0;
     a.addedAt = Math.max(a.addedAt, t.addedAt || 0);
     if (t.year) a.years.set(t.year, (a.years.get(t.year) || 0) + 1);
+    if (t.year) {
+      const date = [t.year, t.month || 0, t.day || 0].join('-');
+      a.dates.set(date, (a.dates.get(date) || 0) + 1);
+    }
+    if (t.comment) a.comments.set(t.comment, (a.comments.get(t.comment) || 0) + 1);
     for (const g of (t.genre || '').split(/\s*[,;/]\s*/).filter(Boolean)) a.genres.set(g, (a.genres.get(g) || 0) + 1);
   }
   for (const a of albums.values()) {
     a.tracks.sort((x, y) => x.discN - y.discN || x.track - y.track || x.title.localeCompare(y.title));
-    a.year = [...a.years].sort((x, y) => y[1] - x[1] || x[0] - y[0])[0]?.[0] || 0;
+    const date = [...a.dates].sort((x, y) => y[1] - x[1] || y[0].split('-').filter((p) => +p).length - x[0].split('-').filter((p) => +p).length)[0]?.[0];
+    [a.year, a.month, a.day] = date ? date.split('-').map(Number) : [0, 0, 0];
     a.genre = [...a.genres].sort((x, y) => y[1] - x[1]).map((g) => g[0]).slice(0, 3).join(', ');
-    a.discs = new Set(a.tracks.map((t) => t.discN)).size;
+    a.comment = [...a.comments].sort((x, y) => y[1] - x[1])[0]?.[0] || '';
+    a.discs = Math.max(1, ...a.tracks.map((t) => t.discN || 1), ...a.tracks.map((t) => t.discOf || 0));
     delete a.years;
+    delete a.dates;
     delete a.genres;
+    delete a.comments;
   }
   S.albums = albums;
   S.albumList = [...albums.values()].sort((x, y) => sortKey(x.artist).localeCompare(sortKey(y.artist)) || x.year - y.year);
@@ -198,12 +208,34 @@ export function addToPlaylist(id, ids) {
   return pl;
 }
 
-export function updateOverrides(id, fields) {
+function applyOverride(id, fields) {
   const base = S.snapshot.tracks.find((t) => t.id === id);
-  const ov = {};
-  for (const [k, v] of Object.entries(fields)) if (String(base[k] ?? '') !== String(v ?? '')) ov[k] = v;
+  if (!base) return;
+  const ov = { ...(S.user.overrides[id] || {}) };
+  for (const [k, v] of Object.entries(fields)) {
+    if (String(base[k] ?? '') === String(v ?? '')) delete ov[k];
+    else ov[k] = v;
+  }
   if (Object.keys(ov).length) S.user.overrides[id] = ov;
   else delete S.user.overrides[id];
+}
+
+export function updateOverrides(id, fields) {
+  applyOverride(id, fields);
+  saveUser();
+  setLibrary(S.snapshot);
+}
+
+// The album key is intentionally stable: music-file tags determine its original identity,
+// while all user edits apply when the snapshot is reconstructed, including after rescans.
+export function updateAlbumOverrides(key, fields, subtitles = {}) {
+  const album = S.albums.get(key);
+  if (!album) return;
+  for (const t of album.tracks) {
+    const changes = { ...fields };
+    if (Object.hasOwn(subtitles, t.discN)) changes.discSubtitle = subtitles[t.discN];
+    applyOverride(t.id, changes);
+  }
   saveUser();
   setLibrary(S.snapshot);
 }

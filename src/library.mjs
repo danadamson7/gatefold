@@ -5,11 +5,12 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { parseFile } from 'music-metadata';
 import { nativeImage } from 'electron';
+import { parseReleaseDate } from './metadata.mjs';
 
 export const AUDIO_EXT = new Set(['mp3', 'flac', 'ogg', 'oga', 'opus', 'm4a', 'mp4', 'aac', 'wav', 'webm',
   'wma', 'ape', 'wv', 'aif', 'aiff', 'mpc', 'dsf', 'alac']);
 const IMAGE_EXT = new Set(['jpg', 'jpeg', 'png', 'webp']);
-const TRACK_VERSION = 3; // bump to force a full re-read of tags after a parser change
+const TRACK_VERSION = 4; // bump to force a full re-read of tags after a parser change
 
 export const hash = (s) => crypto.createHash('sha1').update(s).digest('hex').slice(0, 16);
 const ext = (p) => path.extname(p).slice(1).toLowerCase();
@@ -64,6 +65,7 @@ async function readTrack(file, id, st, prev) {
     if (l.syncText?.length && !lyricsSync) lyricsSync = l.syncText.map((x) => [x.timestamp ?? 0, x.text]);
     else if (l.text && !lyrics) lyrics = l.text;
   }
+  const release = parseReleaseDate(c.date || c.releasedate || c.originaldate, c.year || c.originalyear);
   return {
     id, path: file, mtime: st.mtimeMs, size: st.size, v: TRACK_VERSION,
     addedAt: prev?.addedAt ?? st.mtimeMs,
@@ -73,7 +75,7 @@ async function readTrack(file, id, st, prev) {
     album: c.album || path.basename(path.dirname(file)),
     albumFromFolder: !c.album,
     artistFromFolder: !c.artist && !c.albumartist,
-    year: c.year || c.originalyear || 0,
+    year: release.year, month: release.month, day: release.day,
     track: c.track?.no || 0, trackOf: c.track?.of || 0,
     disc: c.disk?.no || 0, discOf: c.disk?.of || 0,
     discSubtitle: firstString(c.discsubtitle),

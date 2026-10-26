@@ -1,7 +1,7 @@
 // Overlays: context menus, modal dialogs, search, settings drawer, equalizer, toasts.
-import { S, saveUser, updateOverrides, albumArt, artHtml, trackStats, albumStats, artistImage, placeholder } from './store.js';
+import { S, saveUser, updateOverrides, updateAlbumOverrides, albumArt, artHtml, trackStats, albumStats, artistImage, placeholder } from './store.js';
 import { player, EQ_FREQS, EQ_PRESETS } from './player.js';
-import { $, esc, fmtTime, fmtLength, fmtDate, fmtAgo, emit, sortKey } from './util.js';
+import { $, esc, fmtTime, fmtLength, fmtDate, fmtAgo, fmtReleaseDate, emit, sortKey } from './util.js';
 import { icon } from './icons.js';
 
 const root = () => document.getElementById('overlay-root');
@@ -117,7 +117,7 @@ export async function songProperties(id, focus) {
     <div class="props-grid">
       ${ed('Track title', 'title', t.title)}
       ${ed('Artist', 'artist', t.artist)}
-      ${ro('Album artist', t.albumArtist)}
+      ${ed('Album artist', 'albumArtist', t.albumArtist)}
       ${ro('Album', t.albumTitle)}
       ${ro('Track', t.track ? `${t.track}${t.trackOf ? ` of ${t.trackOf}` : ''}` : '')}
       ${ro('Disc', `${t.discN}${t.discOf ? ` of ${t.discOf}` : a.discs > 1 ? ` of ${a.discs}` : ''}`)}
@@ -143,7 +143,7 @@ export async function songProperties(id, focus) {
   form.onsubmit = (e) => {
     e.preventDefault();
     const f = form.elements;
-    const fields = { title: f.title.value.trim(), artist: f.artist.value.trim(), year: +f.year.value || 0,
+    const fields = { title: f.title.value.trim(), artist: f.artist.value.trim(), albumArtist: f.albumArtist.value.trim(), year: +f.year.value || 0,
       genre: f.genre.value.trim(), mood: f.mood.value.trim(), comment: f.comment.value };
     if (f.lyrics.value !== lyricsText) fields.lyrics = f.lyrics.value;
     else if (ovLyrics != null) fields.lyrics = ovLyrics;
@@ -161,35 +161,101 @@ export function albumProperties(key) {
   const custom = S.user.albumArt[key];
   const st = albumStats(a);
   const dirs = S.snapshot.albums[key]?.dirs || [];
-  const ro = (label, v) => `<label><span>${label}</span><div class="ro">${esc(v) || '—'}</div></label>`;
-  const m = modal(`<div class="props">
-    <header class="props-head"><div><h2>${esc(a.title)}</h2><p>Album properties</p></div>
-      <button class="icon-btn close-x" data-close>${icon('close')}</button></header>
+  const ed = (label, name, value, extra = '') => `<label><span>${label}</span><input name="${name}" value="${esc(value ?? '')}" ${extra}></label>`;
+  const ro = (label, value) => `<label><span>${label}</span><div class="ro">${esc(value) || '—'}</div></label>`;
+  const artists = new Set(a.tracks.map((t) => t.artist));
+  const mixedArtists = artists.size > 1;
+  const genres = new Set(a.tracks.map((t) => t.genre || ''));
+  const comments = new Set(a.tracks.map((t) => t.comment || ''));
+  const discNums = [...new Set(a.tracks.map((t) => t.discN || 1))].sort((x, y) => x - y);
+  const discEdits = discNums.map((n) => {
+    const t = a.tracks.find((t) => t.discN === n && t.discSubtitle) || a.tracks.find((t) => t.discN === n);
+    return ed(a.discs > 1 ? `Disc ${n} subtitle` : 'Disc subtitle', `subtitle_${n}`, t?.discSubtitle || '');
+  }).join('');
+  const m = modal(`<form class="props">
+    <header class="props-head"><div><h2>${esc(a.title)}</h2><p>Album properties · editable metadata</p></div>
+      <button type="button" class="icon-btn close-x" data-close>${icon('close')}</button></header>
     <div class="album-props">
       <div class="ap-art">${artHtml(a, 'big', false)}
-        <div class="ap-art-btns"><button class="btn ghost" data-art>${icon('image')}Change art…</button>
-        ${custom ? `<button class="btn ghost" data-reset>${icon('refresh')}Use original</button>` : ''}</div>
+        <div class="ap-art-btns"><button type="button" class="btn ghost" data-art>${icon('image')}Change art…</button>
+        ${custom ? `<button type="button" class="btn ghost" data-reset>${icon('refresh')}Use original</button>` : ''}</div>
         <small>${custom ? 'Custom image' : a.art ? 'From the music files / folder' : 'No art found — choose a PNG or JPG'}</small></div>
       <div class="props-grid one">
-        ${ro('Album artist', a.artist)}
-        ${ro('Year', a.year || '')}
-        ${ro('Genre', a.genre)}
-        ${ro('Number of discs', a.discs)}
+        ${ed('Album title', 'albumTitle', a.title, 'required')}
+        ${ed('Album Artist', 'albumArtist', a.artist, 'required')}
+        ${ed('Artist (all songs)', 'artist', mixedArtists ? '' : a.tracks[0]?.artist, mixedArtists ? 'placeholder="Multiple artists — leave blank to keep"' : '')}
+        ${ed('Genre', 'genre', genres.size === 1 ? [...genres][0] : '', genres.size > 1 ? 'placeholder="Multiple genres — leave blank to keep"' : '')}
+        <div class="date-fields wide"><span>Release date</span><div>
+          ${ed('Year', 'year', a.year || '', 'type="number" min="0" max="9999" placeholder="YYYY"')}
+          ${ed('Month', 'month', a.month || '', 'type="number" min="1" max="12" placeholder="MM"')}
+          ${ed('Day', 'day', a.day || '', 'type="number" min="1" max="31" placeholder="DD"')}
+        </div></div>
+        ${ed('Number of discs', 'discOf', a.discs, 'type="number" min="1" max="99" required')}
+        ${discEdits}
+        <label class="wide"><span>Comments</span><textarea name="comment" rows="3" placeholder="${comments.size > 1 ? 'Different comments per song — leave blank to keep' : ''}">${esc(comments.size === 1 ? [...comments][0] : '')}</textarea></label>
         ${ro('Number of tracks', a.tracks.length)}
         ${ro('Length', fmtLength(a.duration))}
         ${ro('Times played', `${st.n}${st.last ? ` (last ${fmtAgo(st.last)})` : ''}`)}
         ${ro('Added', fmtDate(a.addedAt))}
-        <label><span>Folder${dirs.length > 1 ? 's' : ''}</span><div class="ro path">${dirs.map(esc).join('<br>')}</div></label>
+        <label class="wide"><span>Folder${dirs.length > 1 ? 's' : ''}</span><div class="ro path">${dirs.map(esc).join('<br>')}</div></label>
       </div>
-    </div></div>`, 'wide');
+    </div>
+    <p class="hint">Album-wide edits are stored in Gatefold, not written to your music files. Artist, Genre and Comments can still be edited separately for each song.</p>
+    <div class="modal-actions"><button type="button" class="btn ghost" data-close>Cancel</button><button class="btn primary">Save changes</button></div>
+  </form>`, 'wide');
+  const form = m.querySelector('form');
   m.querySelectorAll('[data-close]').forEach((b) => { b.onclick = closeModal; });
-  m.querySelector('[data-art]').onclick = () => changeAlbumArt(key).then(() => albumProperties(key));
+  m.querySelector('[data-art]').onclick = async () => {
+    await changeAlbumArt(key);
+    // Keep any unsaved text edits intact while updating the preview.
+    const preview = m.querySelector('.ap-art > .art');
+    if (preview && S.user.albumArt[key]) {
+      const img = document.createElement('img');
+      img.className = preview.className;
+      img.src = `custom/${S.user.albumArt[key]}`;
+      img.alt = '';
+      preview.replaceWith(img);
+    }
+  };
   m.querySelector('[data-reset]')?.addEventListener('click', () => {
     delete S.user.albumArt[key];
     saveUser();
     emit('art');
-    albumProperties(key);
+    // Retain unsaved text edits; update just the image preview.
+    const preview = m.querySelector('.ap-art > .art');
+    const replacement = document.createElement('div');
+    replacement.innerHTML = artHtml(a, 'big', false);
+    preview?.replaceWith(replacement.firstElementChild);
   });
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    const f = form.elements;
+    const year = +f.year.value || 0;
+    const month = +f.month.value || 0;
+    const day = +f.day.value || 0;
+    const discs = +f.discOf.value;
+    const latestDisc = Math.max(...discNums);
+    const days = year && month ? new Date(Date.UTC(year, month, 0)).getUTCDate() : 0;
+    if ((!year && (month || day)) || (day && !month) || month > 12 || day > days || (day && !year)) {
+      return toast('Enter a valid release date (year, optional month and day)');
+    }
+    if (!Number.isInteger(discs) || discs < latestDisc || discs > 99) {
+      return toast(`Number of discs must be between ${latestDisc} and 99`);
+    }
+    const title = f.albumTitle.value.trim();
+    const albumArtist = f.albumArtist.value.trim();
+    if (!title || !albumArtist) return toast('Album title and Album Artist are required');
+    const fields = { albumTitle: title, albumArtist, year, month, day, discOf: discs };
+    // A blank mixed-value field means keep the song-specific values; otherwise
+    // changing an album property deliberately applies it to every song.
+    if (!mixedArtists || f.artist.value.trim()) fields.artist = f.artist.value.trim();
+    if (genres.size === 1 || f.genre.value.trim()) fields.genre = f.genre.value.trim();
+    if (comments.size === 1 || f.comment.value) fields.comment = f.comment.value;
+    const subtitles = Object.fromEntries(discNums.map((n) => [n, f[`subtitle_${n}`].value.trim()]));
+    updateAlbumOverrides(key, fields, subtitles);
+    closeModal();
+    toast('Album properties saved');
+  };
 }
 
 export async function changeAlbumArt(key) {
@@ -213,9 +279,10 @@ export function openSearch() {
   if ($('#search-panel')) return $('#search-panel input').focus();
   const el = document.createElement('div');
   el.id = 'search-panel';
-  el.innerHTML = `<div class="search-box">${icon('search')}<input placeholder="Search artists, albums, songs…" spellcheck="false"><kbd>Esc</kbd></div><div class="search-results"></div>`;
+  el.innerHTML = `<div class="search-box">${icon('search')}<input placeholder="Search artists, albums, songs…" spellcheck="false"><button type="button" class="search-dismiss" title="Close search (Esc)">Esc</button></div><div class="search-results"></div>`;
   root().appendChild(el);
   const input = el.querySelector('input');
+  el.querySelector('.search-dismiss').addEventListener('click', closeSearch);
   const out = el.querySelector('.search-results');
   let sel = -1;
   const render = () => {
@@ -234,8 +301,8 @@ export function openSearch() {
       const img = artistImage(a.name);
       return `<div class="sr" data-act="artist" data-name="${esc(a.name)}">${img ? `<img class="thumb" src="${esc(img)}" alt="">` : placeholder(a.name, 'thumb')}<span><b>${esc(a.name)}</b><small>${a.albums.length} albums</small></span></div>`;
     }).join(''))
-      + sec('Albums', albums.map((a) => `<div class="sr" data-act="open-album" data-key="${a.key}" data-ctx="album">${artHtml(a, 'thumb')}<span><b>${esc(a.title)}</b><small>${esc(a.artist)}${a.year ? ` · ${a.year}` : ''}</small></span></div>`).join(''))
-      + sec('Songs', songs.map((t) => `<div class="sr" data-act="play-in-album" data-tid="${t.id}" data-key="${t.albumKey}" data-ctx="track">${artHtml(S.albums.get(t.albumKey), 'thumb')}<span><b>${esc(t.title)}</b><small>${esc(t.artist)} — ${esc(t.albumTitle)}</small></span><em>${fmtTime(t.duration)}</em></div>`).join(''))
+      + sec('Albums', albums.map((a) => `<div class="sr" data-act="open-album" data-key="${a.key}" data-ctx="album">${artHtml(a, 'thumb')}<span><b>${esc(a.title)}</b><small>${esc(a.artist)}${a.year ? ` · ${fmtReleaseDate(a)}` : ''}</small></span></div>`).join(''))
+      + sec('Songs', songs.map((t) => `<div class="sr" data-act="open-album" data-tid="${t.id}" data-key="${t.albumKey}" data-ctx="track">${artHtml(S.albums.get(t.albumKey), 'thumb')}<span><b>${esc(t.title)}</b><small>${esc(t.artist)} — ${esc(t.albumTitle)}</small></span><em>${fmtTime(t.duration)}</em></div>`).join(''))
       || '<div class="empty small">No matches.</div>';
   };
   input.addEventListener('input', render);

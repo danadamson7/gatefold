@@ -4,6 +4,15 @@ export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 export const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ESC[c]);
 
+// Format a partial release date without inventing a month or day.
+export function fmtReleaseDate(a) {
+  if (!a?.year) return '';
+  const year = String(a.year).padStart(4, '0');
+  const month = a.month ? `-${String(a.month).padStart(2, '0')}` : '';
+  const day = a.day && a.month ? `-${String(a.day).padStart(2, '0')}` : '';
+  return year + month + day;
+}
+
 export function fmtTime(sec) {
   sec = Math.max(0, Math.round(sec || 0));
   const h = Math.floor(sec / 3600);

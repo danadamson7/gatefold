@@ -1,7 +1,7 @@
 // NOW PLAYING: queue on the left, large cover in the centre, lyrics on the right.
 import { S, artHtml, albumArt, trackStats } from '../store.js';
 import { player } from '../player.js';
-import { esc, fmtTime } from '../util.js';
+import { esc, fmtTime, fmtReleaseDate } from '../util.js';
 import { icon } from '../icons.js';
 
 let lyricsFor = null;
@@ -38,7 +38,7 @@ export function renderNowPlaying(el) {
       ${t ? `<div class="np-art" data-act="open-album" data-key="${a.key}" data-ctx="album">${artHtml(a, 'big', false)}</div>
         <div class="np-title">${esc(t.title)}</div>
         <div class="np-artist"><a data-act="artist" data-name="${esc(a.artist)}">${esc(t.artist)}</a></div>
-        <div class="np-album"><a data-act="open-album" data-key="${a.key}">${esc(a.title)}</a>${a.year ? ` (${a.year})` : ''}</div>
+        <div class="np-album"><a data-act="open-album" data-key="${a.key}">${esc(a.title)}</a>${a.year ? ` (${fmtReleaseDate(a)})` : ''}</div>
         <div class="np-meta">${[t.discOf > 1 || a.discs > 1 ? `Disc ${t.discN}` : '', t.track ? `Track ${t.track}${t.trackOf ? ` of ${t.trackOf}` : ''}` : '', t.genre, t.mood, `${st.n} play${st.n === 1 ? '' : 's'}`].filter(Boolean).map(esc).join(' · ')}</div>`
     : `<div class="np-empty">${icon('record', 'big-ic spin-slow')}<p>Nothing playing</p></div>`}
     </div>

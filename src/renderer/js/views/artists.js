@@ -28,7 +28,7 @@ function sidebar() {
         <button class="${sort === 'alpha' ? 'on' : ''}" data-act="artist-sort" data-v="alpha">A–Z</button>
         <button class="${sort === 'count' ? 'on' : ''}" data-act="artist-sort" data-v="count">Count</button>
       </div></div>
-    <div class="side-list">
+    <div class="side-list artist-side-list" tabindex="0" role="listbox" aria-label="Album Artists">
       <div class="side-item all${cur == null ? ' on' : ''}" data-act="artist" data-name="">${icon('clef', 'thumb')}<span class="name">All Artists</span><span class="count">${S.albums.size}</span></div>
       ${rows}
     </div>
@@ -43,7 +43,7 @@ function grid() {
   const sub = ar
     ? `${ar.albums.length} album${ar.albums.length === 1 ? '' : 's'} · ${ar.trackCount} songs · ${fmtHours(ar.duration)}`
     : `${S.albums.size} albums · ${S.artists.size} artists · in chronological order`;
-  return `<div class="grid-view">
+  return `<div class="grid-view${ar ? ' artist-selected' : ''}">
     <header class="center-head">
       <h1>${esc(title)}</h1><p>${esc(sub)}</p>
       <div class="head-actions">
@@ -59,9 +59,15 @@ export function renderArtists(el) {
   if (S.ui.artist != null && !S.artists.has(S.ui.artist)) S.ui.artist = null;
   const prevList = el.querySelector('.side-list');
   const sideScroll = prevList?.scrollTop || 0;
+  const hadFocus = prevList?.contains(document.activeElement) || prevList === document.activeElement;
   const a = S.ui.album && S.albums.get(S.ui.album);
   el.innerHTML = `<div class="split">${sidebar()}<div class="content" id="artists-content">${a ? albumDetail(a) : grid()}</div></div>`;
-  el.querySelector('.side-list').scrollTop = sideScroll;
+  const list = el.querySelector('.side-list');
+  list.scrollTop = sideScroll;
+  list.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.side-item')) list.focus({ preventScroll: true });
+  });
+  if (hadFocus) list.focus({ preventScroll: true });
   if (a) tintAlbum(el.querySelector('.album-view'), a);
   else if (S.ui.gridScroll) el.querySelector('#artists-content').scrollTop = S.ui.gridScroll;
 }

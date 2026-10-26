@@ -5,3 +5,6 @@ shots/
 .testdata/
 vendor/
 shots-real/
+
+.build-tools/
+Gatefold-Setup-*.exe
