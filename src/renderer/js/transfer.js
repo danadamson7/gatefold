@@ -11,7 +11,7 @@ const signature = (t) => [baseName(t.path), t.albumTitle, t.discN || 1, t.track 
 export function createMetadataExport(snapshot, user) {
   const overrides = user.overrides || {};
   return {
-    format: 'gatefold-metadata', version: 1, appVersion: '1.1.0', createdAt: new Date().toISOString(),
+    format: 'gatefold-metadata', version: 1, appVersion: '1.1.1', createdAt: new Date().toISOString(),
     // Entries contain no absolute music folder paths; songs matched by ID and original filename/album details.
     tracks: snapshot.tracks.map((base) => {
       const extra = overrides[base.id] || {};

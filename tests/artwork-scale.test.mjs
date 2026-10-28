@@ -1,4 +1,4 @@
-// Regression coverage for v1.1.0 artwork dimensions.
+// Regression coverage for v1.1.1 artwork dimensions.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -13,21 +13,23 @@ function rule(selector) {
   assert.ok(m, `Missing CSS rule: ${selector}`);
   return m[1];
 }
-test('version and Windows installer target are 1.1.0', () => {
+test('version and Windows installer target are 1.1.1', () => {
   const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'));
   const lock = JSON.parse(readFileSync(resolve(root, 'package-lock.json'), 'utf8'));
   const cmd = readFileSync(resolve(root, 'BUILD_WINDOWS_INSTALLER.cmd'), 'utf8');
-  assert.equal(pkg.version, '1.1.0');
-  assert.equal(lock.version, '1.1.0');
-  assert.equal(lock.packages[''].version, '1.1.0');
-  assert.match(cmd, /Gatefold-Setup-1\.1\.0\.exe/);
+  assert.equal(pkg.version, '1.1.1');
+  assert.equal(lock.version, '1.1.1');
+  assert.equal(lock.packages[''].version, '1.1.1');
+  assert.match(cmd, /Gatefold-Setup-1\.1\.1\.exe/);
+  const ps1 = readFileSync(resolve(root, 'scripts/Build-Windows.ps1'), 'utf8');
+  assert.match(ps1, /Gatefold-Setup-1\.1\.1\.exe/);
 });
-test('artist/now playing art unchanged and playlist cover 120% of v1.0.5', () => {
+test('artist/now playing art unchanged and playlist cover 130% of v1.1.0', () => {
   assert.match(rule('.album-grid'), /315px/);                      // 210 * 1.5
   assert.match(rule('.grid-view.artist-selected .album-grid'), /390px/); // 260 * 1.5
   assert.match(rule('.av-side'), /450px, 42vw/);                 // 300 * 1.5; 28vw * 1.5
   assert.match(rule('#page-artists .side-item .thumb'), /57px; height: 57px/);
   assert.match(rule('.np-art'), /87vh, 100%, 930px/);           // 58vh * 1.5; 620px * 1.5
-  assert.match(rule('.pl-art'), /width: min\(100%, 646px\)/); // 538 * 1.2, rounded
-  assert.match(rule('#page-playlists .side-item .thumb'), /108px; height: 108px/);
+  assert.match(rule('.pl-art'), /width: min\(100%, 840px\)/); // 646 * 1.3, rounded
+  assert.match(rule('#page-playlists .side-item .thumb'), /140px; height: 140px/);
 });

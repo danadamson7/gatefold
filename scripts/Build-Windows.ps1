@@ -98,11 +98,11 @@ try {
     & $npm run dist:win -- --x64
     Require-Success 'Electron Windows packaging'
 
-    $installer = Join-Path $repo 'dist/Gatefold-Setup-1.1.0.exe'
+    $installer = Join-Path $repo 'dist/Gatefold-Setup-1.1.1.exe'
     if (-not (Test-Path $installer)) {
         throw 'Packaging completed without producing the expected setup .exe file.'
     }
-    $destination = Join-Path $repo 'Gatefold-Setup-1.1.0.exe'
+    $destination = Join-Path $repo 'Gatefold-Setup-1.1.1.exe'
     Copy-Item $installer $destination -Force
     Write-Host ''
     Write-Host "SUCCESS: $destination" -ForegroundColor Green

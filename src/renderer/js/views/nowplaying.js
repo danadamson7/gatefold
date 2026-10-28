@@ -9,17 +9,13 @@ let lyrics = null;
 let userScrolledAt = 0;
 
 function queueHtml() {
+  // Match the v1.0.5 Song List: one compact row per track, with no disc subtitles.
   const ids = player.upcoming;
   if (!ids.length) return '<div class="empty">Nothing queued. Pick an album to get started.</div>';
-  let previous = null;
   return ids.map((id, i) => {
     const t = S.tracks.get(id);
     if (!t) return '';
-    const subtitle = S.albums.get(t.albumKey)?.tracks.find((song) => song.discN === t.discN && song.discSubtitle)?.discSubtitle || t.discSubtitle;
-    const discHeader = subtitle && (previous?.albumKey !== t.albumKey || previous?.discN !== t.discN)
-      ? `<div class="q-disc">${esc(subtitle)}</div>` : '';
-    previous = t;
-    return `${discHeader}<div class="qrow"${i === player.pos ? ' cur' : ''}${i < player.pos ? ' past' : ''}" data-act="jump" data-pos="${i}" data-tid="${id}" data-ctx="queue">
+    return `<div class="qrow${i === player.pos ? ' cur' : ''}${i < player.pos ? ' past' : ''}" data-act="jump" data-pos="${i}" data-tid="${id}" data-ctx="queue">
       <span class="qn">${i + 1}</span>
       <span class="qt"><span class="t">${esc(t.title)}</span><span class="a">${esc(t.artist)}</span></span>
       <span class="d">${fmtTime(t.duration)}</span>

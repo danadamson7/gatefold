@@ -1,4 +1,4 @@
-// v1.1.0 verifies the playlist header/table layout and retained handlers.
+// v1.1.1 verifies the playlist header/table layout and retained handlers.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -25,8 +25,8 @@ test('song table occupies right panel and reordering is retained', () => {
   assert.match(js, /<section class="pl-tracks"[\s\S]*?class="ptable"/);
   assert.match(js, /data-dbl="play-in-playlist"/);
   assert.match(js, /row\.addEventListener\('drop'/);
-  assert.match(css, /\.pl-view\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0, min\(646px, 49%\)\) minmax\(0, 1fr\)/);
-  assert.match(css, /@media \(max-width: 1160px\)\s*\{\s*\.pl-view\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\)/);
+  assert.match(css, /\.pl-view\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0, min\(840px, 63.7%\)\) minmax\(0, 1fr\)/);
+  assert.match(css, /@media \(max-width: 1450px\)\s*\{\s*\.pl-view\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\)/);
 });
 
 test('rendered playlist has left-side cover + controls and right-side interactive track rows', () => {

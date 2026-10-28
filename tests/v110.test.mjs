@@ -97,10 +97,11 @@ test('mobile PWA is installable read-only shell without desktop editing controls
  assert.match(workflow,/actions\/deploy-pages@v4/);
 });
 
-test('now playing disc subtitles and previous/next song property controls exist',()=>{
+test('Now Playing list remains compact like v1.0.5 and previous/next song property controls exist',()=>{
  const np=readFileSync(resolve(root,'src/renderer/js/views/nowplaying.js'),'utf8');
  const ui=readFileSync(resolve(root,'src/renderer/js/ui.js'),'utf8');
- assert.match(np,/q-disc/);
+ assert.doesNotMatch(np,/q-disc/);
+ assert.match(np,/class="qrow\$\{/);
  assert.match(ui,/data-song-prev/);
  assert.match(ui,/data-song-next/);
  assert.match(ui,/ArrowLeft.*ArrowRight/);
