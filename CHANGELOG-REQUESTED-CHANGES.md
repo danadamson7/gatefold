@@ -1,3 +1,13 @@
+# Gatefold 1.1.3 — Album canvas artwork and playlist scrolling
+
+- **Artists / selected album:** When alternative 2:1 artwork is assigned, show it centered behind the entire album canvas rather than inside the song list. Cover art, album title, metadata, controls, and songs all appear in front of it. No alternate art leaves the normal album backdrop.
+- **Playlists:** Scale the main cover to 98% of its v1.1.2 maximum, 1050 → 1029 px. Scale sidebar thumbnails from 175 → 172 px (rounded).
+- **Playlists:** Keep the left artwork/title/info/actions panel stationary during song scrolling. The song table has its own vertical overflow and sticky column headings. At narrower widths, a compact left/details panel stays above the independent scrolling list.
+- **Version:** 1.1.3 in npm package, dependency lock root, setup scripts, and metadata export.
+- All prior desktop features and the Android PWA are retained.
+
+---
+
 # Gatefold 1.1.2 — Layout and alternative album artwork
 - Now Playing: Song List and Lyrics widths are 125% of 1.1.1 (352 → 440px and 396 → 495px on large windows). Center album art no longer scrolls vertically; cover scales down to fit.
 - Playlists: Cover maximum enlarged from 840px to 1050px, thumbnails from 140px to 175px.

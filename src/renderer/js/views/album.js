@@ -41,7 +41,10 @@ export function albumDetail(a, { artistsLayout = false } = {}) {
   }
   const plays = a.tracks.reduce((s, t) => s + trackStats(t.id).n, 0);
   const alternate = artistsLayout ? S.user.alternateAlbumArt?.[a.key] : null;
+  const altBackground = alternate
+    ? `<div class="av-alt-backdrop" aria-hidden="true"><img src="custom/${esc(alternate)}" alt=""></div>` : '';
   return `<div class="album-view${artistsLayout ? ' artist-album-view' : ''}" data-key="${a.key}">
+    ${altBackground}
     <button class="close-x" data-act="close-album" title="Close (Esc)">${icon('close')}</button>
     <div class="av-side${artistsLayout ? ' av-side-hidden' : ''}">
       <div class="av-art" data-ctx="album" data-key="${a.key}">${artHtml(a, 'big', false)}</div>
@@ -61,8 +64,7 @@ export function albumDetail(a, { artistsLayout = false } = {}) {
         <button class="chip" data-act="album-to-playlist" data-key="${a.key}">${icon('plus')}Add to playlist</button>
         <button class="chip" data-act="album-props" data-key="${a.key}">${icon('info')}Properties</button>
       </div>
-      <div class="av-track-panel${alternate ? ' with-alt-art' : ''}">
-        ${alternate ? `<div class="av-alt-backdrop" aria-hidden="true"><img src="custom/${esc(alternate)}" alt=""></div>` : ''}
+      <div class="av-track-panel">
         <div class="tracks">${body}</div>
       </div>
     </div>
