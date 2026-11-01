@@ -19,7 +19,7 @@ export function albumCard(a, { showArtist = false, selected = false } = {}) {
   </div>`;
 }
 
-export function albumDetail(a) {
+export function albumDetail(a, { artistsLayout = false } = {}) {
   const discs = new Map();
   for (const t of a.tracks) {
     if (!discs.has(t.discN)) discs.set(t.discN, []);
@@ -40,9 +40,10 @@ export function albumDetail(a) {
     }
   }
   const plays = a.tracks.reduce((s, t) => s + trackStats(t.id).n, 0);
-  return `<div class="album-view" data-key="${a.key}">
+  const alternate = artistsLayout ? S.user.alternateAlbumArt?.[a.key] : null;
+  return `<div class="album-view${artistsLayout ? ' artist-album-view' : ''}" data-key="${a.key}">
     <button class="close-x" data-act="close-album" title="Close (Esc)">${icon('close')}</button>
-    <div class="av-side">
+    <div class="av-side${artistsLayout ? ' av-side-hidden' : ''}">
       <div class="av-art" data-ctx="album" data-key="${a.key}">${artHtml(a, 'big', false)}</div>
       <div class="av-facts">
         ${a.genre ? `<div>${esc(a.genre)}</div>` : ''}
@@ -51,6 +52,7 @@ export function albumDetail(a) {
       </div>
     </div>
     <div class="av-main">
+      ${artistsLayout ? `<div class="av-art av-art-top" data-ctx="album" data-key="${a.key}">${artHtml(a, 'big', false)}</div>` : ''}
       <h1>${esc(a.title)} <button class="tri" data-act="play-album" data-key="${a.key}" title="Play album">${icon('play')}</button></h1>
       <div class="av-sub">${artistLinks(a.artist)}${a.year ? ` (${a.year || ''})` : ''} · ${fmtLength(a.duration)}</div>
       <div class="av-tools">
@@ -59,7 +61,10 @@ export function albumDetail(a) {
         <button class="chip" data-act="album-to-playlist" data-key="${a.key}">${icon('plus')}Add to playlist</button>
         <button class="chip" data-act="album-props" data-key="${a.key}">${icon('info')}Properties</button>
       </div>
-      <div class="tracks">${body}</div>
+      <div class="av-track-panel${alternate ? ' with-alt-art' : ''}">
+        ${alternate ? `<div class="av-alt-backdrop" aria-hidden="true"><img src="custom/${esc(alternate)}" alt=""></div>` : ''}
+        <div class="tracks">${body}</div>
+      </div>
     </div>
   </div>`;
 }

@@ -61,7 +61,7 @@ export function renderArtists(el) {
   const sideScroll = prevList?.scrollTop || 0;
   const hadFocus = prevList?.contains(document.activeElement) || prevList === document.activeElement;
   const a = S.ui.album && S.albums.get(S.ui.album);
-  el.innerHTML = `<div class="split">${sidebar()}<div class="content" id="artists-content">${a ? albumDetail(a) : grid()}</div></div>`;
+  el.innerHTML = `<div class="split">${sidebar()}<div class="content" id="artists-content">${a ? albumDetail(a, { artistsLayout: true }) : grid()}</div></div>`;
   const list = el.querySelector('.side-list');
   list.scrollTop = sideScroll;
   list.addEventListener('pointerdown', (e) => {

@@ -133,13 +133,23 @@ function parseLrc(text) {
   return lines.sort((a, b) => a[0] - b[0]);
 }
 
-async function importImage(file) {
+async function importImage(file, aspect = null) {
   const img = nativeImage.createFromPath(file);
   if (img.isEmpty()) throw new Error('Not a readable image');
   const dir = path.join(userData(), 'custom');
   await fsp.mkdir(dir, { recursive: true });
   const name = hash(file + Date.now()) + '.jpg';
-  const out = img.getSize().width > 1000 ? img.resize({ width: 1000, quality: 'best' }) : img;
+  let image = img;
+  if (aspect === 2) {
+    const { width, height } = img.getSize();
+    const croppedHeight = Math.min(height, Math.floor(width / 2));
+    const croppedWidth = croppedHeight * 2;
+    if (croppedWidth < 2 || croppedHeight < 1) throw new Error('Image is too small');
+    // Center-crop to an exact 2:1 image; do not stretch the artwork.
+    image = img.crop({ x: Math.floor((width - croppedWidth) / 2), y: Math.floor((height - croppedHeight) / 2), width: croppedWidth, height: croppedHeight });
+  }
+  const maxWidth = aspect === 2 ? 1600 : 1000;
+  const out = image.getSize().width > maxWidth ? image.resize({ width: maxWidth, quality: 'best' }) : image;
   await fsp.writeFile(path.join(dir, name), out.toJPEG(90));
   return name;
 }
@@ -185,6 +195,14 @@ function registerIpc() {
       filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp'] }],
     });
     return r.canceled ? null : importImage(r.filePaths[0]);
+  });
+  ipcMain.handle('image:pick-alternate', async () => {
+    const r = await dialog.showOpenDialog(win, {
+      title: 'Choose alternative album art (center-cropped to 2:1)',
+      properties: ['openFile'],
+      filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp'] }],
+    });
+    return r.canceled ? null : importImage(r.filePaths[0], 2);
   });
   ipcMain.handle('lyrics:get', async (_e, id) => {
     const t = lib.track(id);

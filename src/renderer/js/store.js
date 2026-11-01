@@ -29,6 +29,7 @@ const DEFAULT_USER = () => ({
   playlists: [],
   artistImages: {},
   albumArt: {},
+  alternateAlbumArt: {},
   overrides: {},
   eq: { on: false, preamp: 0, bands: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], preset: 'Flat' },
   volume: 80,

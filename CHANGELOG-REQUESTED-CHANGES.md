@@ -1,3 +1,13 @@
+# Gatefold 1.1.2 — Layout and alternative album artwork
+- Now Playing: Song List and Lyrics widths are 125% of 1.1.1 (352 → 440px and 396 → 495px on large windows). Center album art no longer scrolls vertically; cover scales down to fit.
+- Playlists: Cover maximum enlarged from 840px to 1050px, thumbnails from 140px to 175px.
+- Album Properties: Separate alternate art selection and removal, center-cropped to true 2:1 and saved independently in user data.
+- Artists selected album: Main cover top center; optional 2:1 alternate art behind track list with a dark scrim for readable songs. With no alternate art, display the ordinary song-list background.
+- Existing music files and main album covers are not modified. Android PWA is unchanged.
+- Tests: npm test. The desktop UI requires final testing in Windows.
+
+---
+
 # Gatefold 1.1.1 — Now Playing and cover artwork refinements
 
 - **Now Playing → Song List** restored to the v1.0.5 compact song-row design; disc subtitle separators are removed. Other v1.1.0 features remain unchanged.

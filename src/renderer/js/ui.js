@@ -176,6 +176,7 @@ export function albumProperties(key) {
   const a = S.albums.get(key);
   if (!a) return;
   const custom = S.user.albumArt[key];
+  const alternate = S.user.alternateAlbumArt?.[key];
   const st = albumStats(a);
   const dirs = S.snapshot.albums[key]?.dirs || [];
   const ed = (label, name, value, extra = '') => `<label><span>${label}</span><input name="${name}" value="${esc(value ?? '')}" ${extra}></label>`;
@@ -196,7 +197,14 @@ export function albumProperties(key) {
       <div class="ap-art">${artHtml(a, 'big', false)}
         <div class="ap-art-btns"><button type="button" class="btn ghost" data-art>${icon('image')}Change art…</button>
         ${custom ? `<button type="button" class="btn ghost" data-reset>${icon('refresh')}Use original</button>` : ''}</div>
-        <small>${custom ? 'Custom image' : a.art ? 'From the music files / folder' : 'No art found — choose a PNG or JPG'}</small></div>
+        <small>${custom ? 'Custom image' : a.art ? 'From the music files / folder' : 'No art found — choose a PNG or JPG'}</small>
+        <div class="ap-alt-art">
+          <span class="ap-alt-label">Alternative Album Art · 2:1</span>
+          <div class="ap-alt-preview" data-alt-preview>${alternate ? `<img src="custom/${esc(alternate)}" alt="Alternative album artwork">` : '<span class="muted">No alternative artwork selected</span>'}</div>
+          <div class="ap-art-btns"><button type="button" class="btn ghost" data-alt-art>${icon('image')}Select alternative art…</button>
+            <button type="button" class="btn ghost" data-alt-reset ${alternate ? '' : 'disabled'}>Remove alternative art</button></div>
+          <small>Stored separately from the main cover. Selected images are center-cropped to a 2:1 landscape image.</small>
+        </div></div>
       <div class="props-grid one">
         ${ed('Album title', 'albumTitle', a.title, 'required')}
         ${ed('Album Artist', 'albumArtist', a.artist, 'required')}
@@ -244,6 +252,31 @@ export function albumProperties(key) {
     replacement.innerHTML = artHtml(a, 'big', false);
     preview?.replaceWith(replacement.firstElementChild);
   });
+  const altPreview = m.querySelector('[data-alt-preview]');
+  const altReset = m.querySelector('[data-alt-reset]');
+  const updateAltPreview = () => {
+    const file = S.user.alternateAlbumArt?.[key];
+    altPreview.innerHTML = file ? `<img src="custom/${esc(file)}" alt="Alternative album artwork">` : '<span class="muted">No alternative artwork selected</span>';
+    altReset.disabled = !file;
+  };
+  m.querySelector('[data-alt-art]').onclick = async () => {
+    try {
+      const file = await window.gf.pickAlternateAlbumArt();
+      if (!file) return;
+      (S.user.alternateAlbumArt ||= {})[key] = file;
+      saveUser();
+      emit('art');
+      updateAltPreview();
+      toast('Alternative album art selected');
+    } catch (err) { toast(`Could not import image: ${err.message || err}`); }
+  };
+  altReset.onclick = () => {
+    if (!S.user.alternateAlbumArt) return;
+    delete S.user.alternateAlbumArt[key];
+    saveUser();
+    emit('art');
+    updateAltPreview();
+  };
   form.onsubmit = (e) => {
     e.preventDefault();
     const f = form.elements;

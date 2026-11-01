@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('gf', {
   exportMetadata: (json) => ipcRenderer.invoke('metadata:export', json),
   pickFolders: () => ipcRenderer.invoke('dialog:folder'),
   pickImage: () => ipcRenderer.invoke('image:pick'),
+  pickAlternateAlbumArt: () => ipcRenderer.invoke('image:pick-alternate'),
   lyrics: (id) => ipcRenderer.invoke('lyrics:get', id),
   prepare: (id) => ipcRenderer.invoke('media:prepare', id),
   findM3u: (folders) => ipcRenderer.invoke('m3u:scan', folders),
