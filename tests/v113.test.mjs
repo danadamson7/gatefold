@@ -1,4 +1,4 @@
-// Gatefold v1.1.3: independent playlist scrolling and album-canvas artwork.
+// Gatefold v1.1.4 regression (retaining v1.1.3 behaviours): independent playlist scrolling and album-canvas artwork.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -17,11 +17,11 @@ test('alternative art belongs to album canvas, not track panel', () => {
   assert.match(css, /#page-artists \.artist-album-view \.av-alt-backdrop\s*\{[^}]*position: absolute; z-index: 0;[^}]*aspect-ratio: 2 \/ 1/);
 });
 
-test('playlist art is 98 percent of v1.1.2', () => {
-  assert.equal(Math.round(1050 * .98), 1029);
-  assert.equal(Math.round(175 * .98), 172);
-  assert.match(css, /\.pl-art\s*\{[^}]*1029px/);
-  assert.match(css, /#page-playlists \.side-item \.thumb\s*\{[^}]*172px; height: 172px/);
+test('playlist main artwork is 107 percent of v1.1.3; sidebar is 40 percent', () => {
+  assert.equal(Math.round(Math.round(1050 * .98) * 1.07), 1101);
+  assert.equal(Math.round(Math.round(175 * .98) * .4), 69);
+  assert.match(css, /\.pl-art\s*\{[^}]*1101px/);
+  assert.match(css, /#page-playlists \.side-item \.thumb\s*\{[^}]*69px; height: 69px/);
 });
 
 test('playlist information stays outside independently scrollable song table', () => {

@@ -41,9 +41,9 @@ test('album art fills a black square without cropping or stretching', () => {
   assert.doesNotMatch(css,/object-fit:\s*cover\s*;/);
 });
 
-test('playlist cover is 98 percent of 1.1.2 with responsive columns', () => {
-  assert.match(cssRule('.pl-art'), /min\(100%, 1029px/);
-  assert.match(cssRule('#page-playlists .side-item .thumb'), /172px; height: 172px/);
-  assert.match(cssRule('.pl-view'), /min\(1029px, 55%\)/);
+test('playlist cover is 107 percent of 1.1.3 with compact sidebar', () => {
+  assert.match(cssRule('.pl-art'), /min\(100%, 1101px/);
+  assert.match(cssRule('#page-playlists .side-item .thumb'), /69px; height: 69px/);
+  assert.match(cssRule('.pl-view'), /min\(1101px, 58\.85%\)/);
   assert.match(css,/@media \(max-width: 1450px\)/);
 });

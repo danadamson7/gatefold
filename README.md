@@ -1,4 +1,4 @@
-> **Gatefold v1.1.3:** Centers optional 2:1 alternative album artwork behind the entire selected-album canvas (not inside the song list), reduces playlist artwork to 98% of v1.1.2, and keeps playlist artwork/details fixed while the song table scrolls independently. All previous features and the Android PWA are retained. See `CHANGELOG-REQUESTED-CHANGES.md`.
+> **Gatefold v1.1.4:** Enlarges the main playlist and Now Playing album covers, makes playlist sidebar thumbnails more compact, and places enlarged 2:1 alternative album art at the bottom center of selected album pages. Retains all previous features and the read-only Android PWA.
 
 # Gatefold
 
@@ -6,19 +6,19 @@ An album-first music player for Windows and Linux. Gatefold is built around albu
 
 ---
 
-## What's new in 1.1.3
+## What's new in 1.1.4
 
-- **Artists → selected album:** An optional 2:1 alternative art image is centered behind the *entire album canvas*, including the main artwork, title, controls, and song list. It no longer sits inside the song table; without alternate art, the normal background remains.
-- **Playlists:** Main playlist cover is 98% of its 1.1.2 maximum (1050 → 1029 px); sidebar covers scale from 175 → 172 px. The artwork, title, and action buttons stay in the left panel while a long song list scrolls independently, with its column headers visible.
-- **Small windows:** The playlist details remain above the independently scrollable tracks when the layout stacks.
-- **Unchanged:** The wider Now Playing panels, album/songs editing, full-date ordering, and read-only Android PWA.
+- **Playlists:** Main playlist cover enlarged by 7% over v1.1.3, from a 1029 px maximum to **1101 px**. The left sidebar playlist thumbnails shrink to 40% of their previous size, from 172 px to **69 px** (rounded).
+- **Artists → selected album:** The optional 2:1 alternative album artwork is now anchored to the **bottom center** of the album canvas. Its maximum frame grows by 60%, from 1100 px to **1760 px** wide, preserving the 2:1 ratio. The foreground controls and track list remain usable; oversized backdrop edges are clipped within the canvas.
+- **Now Playing:** The central square album cover maximum grows by 9%, from 930 to **1014 px**. It still adapts to the available window height without introducing vertical scrolling.
+- **Unchanged:** Independent playlist song scrolling, metadata editing and transfer, chronological albums, and the read-only Android PWA.
 
 ## Build the Windows setup installer (no coding required)
 
 This modified source package includes `BUILD_WINDOWS_INSTALLER.cmd`.
 On a 64-bit Windows 10 or 11 PC, extract the ZIP and double-click that
 file. The script downloads the necessary tools, runs the tests and
-attempts to create `Gatefold-Setup-1.1.3.exe` alongside it. An internet
+attempts to create `Gatefold-Setup-1.1.4.exe` alongside it. An internet
 connection is required. See `HOW_TO_CREATE_INSTALLER.txt` for details.
 
 **This ZIP is not itself an installer.** A Windows build must succeed before
@@ -29,9 +29,9 @@ Windows in the environment where the modification was prepared.
 
 ## Installing on Windows
 
-**Download Gatefold v1.1.3 from the successful Windows installer GitHub Actions workflow (Actions → Windows installer (CI) → Artifacts).** A release may also be published after a version tag is built.
+**Download Gatefold v1.1.4 from the successful Windows installer GitHub Actions workflow (Actions → Windows installer (CI) → Artifacts).** A release may also be published after a version tag is built.
 
-1. Download the `Gatefold-Setup-Windows` artifact from the latest successful [Windows installer workflow](https://github.com/danadamson7/gatefold/actions/workflows/build-windows-installer.yml); extract its ZIP to find `Gatefold-Setup-1.1.3.exe`.
+1. Download the `Gatefold-Setup-Windows` artifact from the latest successful [Windows installer workflow](https://github.com/danadamson7/gatefold/actions/workflows/build-windows-installer.yml); extract its ZIP to find `Gatefold-Setup-1.1.4.exe`.
 2. Double-click the downloaded file.
 3. Windows may show a blue **"Windows protected your PC"** box. This happens because the app isn't signed with a paid certificate, not because anything is wrong. Click **More info**, then **Run anyway**.
 4. Choose whether to install for just you or everyone, pick a folder (the default is fine), and click **Install**.
@@ -107,7 +107,7 @@ Whenever a commit is pushed to `main`, GitHub Actions will try to build the Wind
 
 1. Open [Windows installer (CI)](https://github.com/danadamson7/gatefold/actions/workflows/build-windows-installer.yml).
 2. Open the latest successful run and download the `Gatefold-Setup-Windows` artifact.
-3. Extract its ZIP and run `Gatefold-Setup-1.1.3.exe` on Windows.
+3. Extract its ZIP and run `Gatefold-Setup-1.1.4.exe` on Windows.
 
 The executable is not code-signed, so Windows SmartScreen may show a warning. The existing `release.yml` builds Windows and Linux release packages from version tags. For v1.0.6, update the version in `package.json` and `package-lock.json` and publish the new code using the same GitHub repository.
 
