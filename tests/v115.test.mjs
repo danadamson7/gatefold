@@ -7,7 +7,7 @@ const css = read('src/renderer/styles.css');
 
 test('Artists selected album main cover is 85% of v1.1.4 and remains top centered', () => {
   assert.equal(450 * 0.85, 382.5);
-  assert.equal(36 * 0.85, 30.6);
+  assert.ok(Math.abs(36 * 0.85 - 30.6) < 1e-9);
   const match = css.match(/#page-artists \.artist-album-view \.av-art-top\s*\{([^}]+)\}/);
   assert.ok(match, 'Selected Artists album cover CSS must exist');
   assert.match(match[1], /width:\s*min\(382\.5px, 30\.6dvh, 85%\)/);
