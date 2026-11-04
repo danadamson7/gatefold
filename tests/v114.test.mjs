@@ -1,4 +1,4 @@
-// Gatefold 1.1.4: visual layout and sizing expectations against v1.1.3.
+// Gatefold 1.1.5: visual layout and sizing expectations against v1.1.3.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -52,12 +52,12 @@ test('Now Playing center cover scales 109 percent without a vertical scrollbar',
   assert.match(css, /\.np-center\s*\{[^}]*overflow-y:\s*hidden/);
 });
 
-test('package and Windows installer version match Gatefold 1.1.4', () => {
+test('package and Windows installer version match Gatefold 1.1.5', () => {
   const pkg = JSON.parse(read('package.json'));
   const lock = JSON.parse(read('package-lock.json'));
-  assert.equal(pkg.version, '1.1.4');
-  assert.equal(lock.version, '1.1.4');
-  assert.equal(lock.packages[''].version, '1.1.4');
-  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.4\.exe/);
-  assert.match(read('scripts/Build-Windows.ps1'), /Gatefold-Setup-1\.1\.4\.exe/);
+  assert.equal(pkg.version, '1.1.5');
+  assert.equal(lock.version, '1.1.5');
+  assert.equal(lock.packages[''].version, '1.1.5');
+  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.5\.exe/);
+  assert.match(read('scripts/Build-Windows.ps1'), /Gatefold-Setup-1\.1\.5\.exe/);
 });

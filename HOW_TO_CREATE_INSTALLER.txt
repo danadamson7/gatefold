@@ -1,4 +1,4 @@
-GATEFOLD - WINDOWS SETUP PROGRAM (VERSION 1.1.4)
+GATEFOLD - WINDOWS SETUP PROGRAM (VERSION 1.1.5)
 ==================================================
 
 These are the modified Gatefold program files, NOT the finished .exe.
@@ -7,7 +7,7 @@ To generate a Windows installer without typing commands:
 1. On a Windows 10/11 64-bit computer, unzip this package.
 2. Double-click BUILD_WINDOWS_INSTALLER.cmd.
 3. Follow the on-screen progress (internet is required).
-4. When successful, double-click Gatefold-Setup-1.1.4.exe
+4. When successful, double-click Gatefold-Setup-1.1.5.exe
    in the same extracted folder to install Gatefold.
 
 The builder downloads Node.js, the app dependencies, Electron,

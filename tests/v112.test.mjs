@@ -5,10 +5,10 @@ const read = (p) => readFileSync(new URL('../' + p, import.meta.url),'utf8');
 const css = read('src/renderer/styles.css');
 const album = read('src/renderer/js/views/album.js');
 const ui = read('src/renderer/js/ui.js');
-test('version 1.1.4 is configured for Windows packaging', () => {
-  assert.equal(JSON.parse(read('package.json')).version, '1.1.4');
-  assert.equal(JSON.parse(read('package-lock.json')).version, '1.1.4');
-  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.4\.exe/);
+test('version 1.1.5 is configured for Windows packaging', () => {
+  assert.equal(JSON.parse(read('package.json')).version, '1.1.5');
+  assert.equal(JSON.parse(read('package-lock.json')).version, '1.1.5');
+  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.5\.exe/);
 });
 test('alternate art is independent of regular album cover and supports selection/removal', () => {
   assert.match(read('src/renderer/js/store.js'), /alternateAlbumArt: \{\}/);

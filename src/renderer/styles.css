@@ -677,7 +677,7 @@ kbd { font: 11px var(--ui); color: var(--text-3); border: 1px solid var(--line-2
 #page-artists .artist-album-view .av-side-hidden { display: none; }
 #page-artists .artist-album-view .av-main { position: relative; z-index: 1; max-width: 1180px; width: 100%; max-height: none; overflow: visible; margin: 0 auto; padding: 0; }
 #page-artists .artist-album-view .close-x { z-index: 3; }
-#page-artists .artist-album-view .av-art-top { width: min(450px, 36dvh, 100%); margin: 0 auto 18px; }
+#page-artists .artist-album-view .av-art-top { width: min(382.5px, 30.6dvh, 85%); margin: 0 auto 18px; }
 #page-artists .artist-album-view .av-art-top .art { box-shadow: 0 14px 34px rgba(0,0,0,.65); -webkit-box-reflect: none; }
 #page-artists .artist-album-view h1 { justify-content: center; margin: 6px 36px 8px; text-align: center; }
 #page-artists .artist-album-view .av-sub { text-align: center; }

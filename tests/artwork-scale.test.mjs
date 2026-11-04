@@ -1,4 +1,4 @@
-// Regression coverage for v1.1.4 artwork dimensions.
+// Regression coverage for v1.1.5 artwork dimensions.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -13,16 +13,16 @@ function rule(selector) {
   assert.ok(m, `Missing CSS rule: ${selector}`);
   return m[1];
 }
-test('version and Windows installer target are 1.1.4', () => {
+test('version and Windows installer target are 1.1.5', () => {
   const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'));
   const lock = JSON.parse(readFileSync(resolve(root, 'package-lock.json'), 'utf8'));
   const cmd = readFileSync(resolve(root, 'BUILD_WINDOWS_INSTALLER.cmd'), 'utf8');
-  assert.equal(pkg.version, '1.1.4');
-  assert.equal(lock.version, '1.1.4');
-  assert.equal(lock.packages[''].version, '1.1.4');
-  assert.match(cmd, /Gatefold-Setup-1\.1\.4\.exe/);
+  assert.equal(pkg.version, '1.1.5');
+  assert.equal(lock.version, '1.1.5');
+  assert.equal(lock.packages[''].version, '1.1.5');
+  assert.match(cmd, /Gatefold-Setup-1\.1\.5\.exe/);
   const ps1 = readFileSync(resolve(root, 'scripts/Build-Windows.ps1'), 'utf8');
-  assert.match(ps1, /Gatefold-Setup-1\.1\.4\.exe/);
+  assert.match(ps1, /Gatefold-Setup-1\.1\.5\.exe/);
 });
 test('artist/now playing art retained and playlist cover 107% of v1.1.3, sidebar 40%', () => {
   assert.match(rule('.album-grid'), /315px/);                      // 210 * 1.5

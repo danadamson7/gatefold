@@ -1,3 +1,12 @@
+# Gatefold 1.1.5 — Smaller top-center Artists album artwork
+
+- **Artists → selected album:** Decrease the main album cover size to **0.85×** the v1.1.4 dimensions. The responsive CSS changes from `min(450px, 36dvh, 100%)` to `min(382.5px, 30.6dvh, 85%)`.
+- The main album cover retains its **top-center** position and existing spacing.
+- No changes to the separate alternative album art, playlist layouts, Now Playing, library data, or Android PWA.
+- Update package and Windows installer version to 1.1.5, with regression tests.
+
+---
+
 # Gatefold 1.1.4 — Artwork scaling and album backdrop placement
 
 - **Playlists / main cover:** Increase from v1.1.3 by 1.07×; maximum 1029 → **1101 px** (rounded). The viewport-responsive width cap and independently scrollable song list are preserved.
