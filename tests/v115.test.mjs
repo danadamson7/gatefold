@@ -23,12 +23,12 @@ test('All other cover placement, playlist, and Now Playing dimensions remain unc
   assert.match(css, /\.pl-tracks\s*\{[^}]*overflow-y:\s*auto/);
 });
 
-test('Version 1.1.5 matches the package, lockfile, and Windows setup scripts', () => {
+test('Version 1.1.6 matches the package, lockfile, and Windows setup scripts', () => {
   const pkg = JSON.parse(read('package.json'));
   const lock = JSON.parse(read('package-lock.json'));
-  assert.equal(pkg.version, '1.1.5');
-  assert.equal(lock.version, '1.1.5');
-  assert.equal(lock.packages[''].version, '1.1.5');
-  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.5\.exe/);
-  assert.match(read('scripts/Build-Windows.ps1'), /Gatefold-Setup-1\.1\.5\.exe/);
+  assert.equal(pkg.version, '1.1.6');
+  assert.equal(lock.version, '1.1.6');
+  assert.equal(lock.packages[''].version, '1.1.6');
+  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.6\.exe/);
+  assert.match(read('scripts/Build-Windows.ps1'), /Gatefold-Setup-1\.1\.6\.exe/);
 });

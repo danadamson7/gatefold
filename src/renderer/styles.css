@@ -708,3 +708,16 @@ kbd { font: 11px var(--ui); color: var(--text-3); border: 1px solid var(--line-2
   #page-artists .artist-album-view { padding: 15px 12px 26px; }
   #page-artists .artist-album-view .av-track-panel { padding: 8px 0 16px; }
 }
+
+/* v1.1.6: compact toggle for Explore Newly Added / Top Artists. */
+.xcol-switch { display: flex; gap: 5px; padding: 7px 10px; border-bottom: 1px solid var(--line); }
+.xcol-switch button {
+  flex: 1; min-width: 0; padding: 6px 3px; border-radius: 6px;
+  border: 1px solid transparent; color: var(--text-2); font: 600 11px var(--ui);
+  white-space: nowrap;
+}
+.xcol-switch button.on { background: var(--bg-3); border-color: var(--line-2); color: var(--gold-hi); }
+.xcol-switch button:hover:not(.on) { color: var(--gold); background: rgba(255,255,255,.04); }
+.xcol-switch button:focus-visible, .artist-xrow:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.artist-xrow { width: 100%; text-align: left; color: var(--text); }
+.artist-xrow .art-wrap { width: 50px; }

@@ -1,3 +1,14 @@
+# Gatefold 1.1.6 — Explore Most Played and Top Artists
+
+- **Most Played albums:** Increase ranking from 25 to **50** albums, ordered by total album track plays; keep the current album rows, featured leader, and quick-play behavior.
+- **Newly Added / Top Artists:** Add a two-button switch to the second Explore column. The Newly Added list is unchanged and remains the default.
+- **Top Artists:** Display up to 25 played **Album Artists**, ranked by total track play counts summed across credited albums. Multi-credited albums (Album Artists separated by `;`) contribute their full album plays to each credited artist, with albums counted once per artist. Display rank, play count, and album count.
+- Clicking an Album Artist navigates to that artist's existing Artists page. The second column's Quick Play button follows the selected view.
+- Update package version, Windows installer setup scripts, and metadata export's appVersion to **1.1.6**. Android PWA unchanged.
+- Validate the ranking, toggle, navigation, and build with automated regression tests.
+
+---
+
 # Gatefold 1.1.5 — Smaller top-center Artists album artwork
 
 - **Artists → selected album:** Decrease the main album cover size to **0.85×** the v1.1.4 dimensions. The responsive CSS changes from `min(450px, 36dvh, 100%)` to `min(382.5px, 30.6dvh, 85%)`.

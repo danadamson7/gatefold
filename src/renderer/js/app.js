@@ -113,7 +113,14 @@ function quickplay(col) {
     if (!x) return toast('Nothing played yet — try Never Played');
     return playAlbum(x.a.key);
   }
-  if (col === 'new') return d.fresh[0] && playAlbum(d.fresh[0].key);
+  if (col === 'new') {
+    if (S.ui.exploreNewPanel === 'artists') {
+      const first = d.topArtists[0]?.artist;
+      if (!first) return toast('No played Album Artists yet');
+      return player.playList(artistIds(first.name), 0, artistSource(first.name));
+    }
+    return d.fresh[0] && playAlbum(d.fresh[0].key);
+  }
   if (col === 'forgotten') return d.forgotten[0] ? playAlbum(d.forgotten[0].a.key) : toast('No forgotten albums yet');
   if (col === 'never') {
     if (!d.never.length) return toast('Every album has been played');
@@ -199,6 +206,10 @@ const A = {
   'play-artist': (d) => player.playList(artistIds(d.name), 0, artistSource(d.name)),
   'shuffle-artist': (d) => player.shuffleList(artistIds(d.name), artistSource(d.name)),
   quickplay: (d) => quickplay(d.col),
+  'explore-new-panel': (d) => {
+    S.ui.exploreNewPanel = d.v === 'artists' ? 'artists' : 'new';
+    render('explore');
+  },
   'play-random-song': (d) => playRandomFrom(d.tid),
   reroll: () => {
     rerollRandom();

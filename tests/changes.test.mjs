@@ -37,16 +37,16 @@ function track(a, n, opts = {}) {
     duration: 120, addedAt: Date.now(), path: `/fake/${a}/${n}.mp3`, ...opts,
   };
 }
-function setup() {
+function setup(count = 30) {
   S.user = { settings: { artistSort:'alpha' }, overrides: {}, albumArt: { album0: 'sample.jpg' },
     stats: { tracks: {}, playlists: { many: { n: 9999, last: Date.now() } } },
     playlists: [{ id: 'many', name: 'Greatest', tracks: [] }], artistImages: {} };
   const tracks = [];
   const albums = {};
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < count; i++) {
     tracks.push(track(i, 1), track(i, 2));
     albums[`album${i}`] = { art: null, dirs: [`/fake/${i}`] };
-    S.user.stats.tracks[`track${i}-1`] = { n: 30 - i, last: Date.now() };
+    S.user.stats.tracks[`track${i}-1`] = { n: count - i, last: Date.now() };
   }
   setLibrary({ tracks, albums });
 }
@@ -77,12 +77,12 @@ test('album editing leaves separate song artists intact and preserves overrides,
   assert.equal(S.albums.get('album0').title, 'A New Name');
 });
 
-test('top 25 contains ranked played albums only, not playlists', () => {
-  setup();
+test('top 50 contains ranked played albums only, not playlists', () => {
+  setup(60);
   const top = explore.exploreData().top;
-  assert.equal(top.length, 25);
+  assert.equal(top.length, 50);
   assert.equal(top[0].a.key, 'album0');
-  assert.equal(top[24].a.key, 'album24');
+  assert.equal(top[49].a.key, 'album49');
   assert.ok(top.every((item) => item.a && !item.p));
 });
 

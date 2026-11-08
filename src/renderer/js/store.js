@@ -10,7 +10,7 @@ export const S = {
   artists: new Map(), // album artist -> { name, albums, trackCount, duration }
   trackArtists: new Map(), // track artist -> [track ids]
   user: null,
-  ui: { page: 'explore', artist: null, album: null, playlist: null, songsArtist: null },
+  ui: { page: 'explore', artist: null, album: null, playlist: null, songsArtist: null, exploreNewPanel: 'new' },
 };
 
 export const SONG_COLUMNS = ['title', 'artist', 'albumArtist', 'album', 'year', 'track', 'disc', 'duration', 'plays',

@@ -1,5 +1,5 @@
 // EXPLORE: five quick-play columns.
-import { S, artHtml, albumStats, playlistArtHtml, trackStats } from '../store.js';
+import { S, artHtml, albumStats, artistImage, placeholder, playlistArtHtml, trackStats } from '../store.js';
 import { esc, fmtAgo, fmtDate, rng, shuffle, fmtTime } from '../util.js';
 import { icon } from '../icons.js';
 import { albumMeta } from './album.js';
@@ -25,6 +25,16 @@ export function exploreData() {
   const withStats = albums.map((a) => ({ a, ...albumStats(a) }));
   const top = withStats.filter((x) => x.n > 0)
     .sort((x, y) => y.n - x.n || x.a.title.localeCompare(y.a.title) || x.a.key.localeCompare(y.a.key))
+    .slice(0, 50);
+  const playsByAlbum = new Map(withStats.map(({ a, n }) => [a.key, n]));
+  // Full album play totals count toward each credited Album Artist, including semicolon-separated co-credits.
+  const topArtists = [...S.artists.values()]
+    .map((artist) => ({
+      artist,
+      n: artist.albums.reduce((total, a) => total + (playsByAlbum.get(a.key) || 0), 0),
+    }))
+    .filter(({ n }) => n > 0)
+    .sort((x, y) => y.n - x.n || x.artist.name.localeCompare(y.artist.name))
     .slice(0, 25);
   const fresh = [...albums].sort((x, y) => y.addedAt - x.addedAt).slice(0, 24);
   const cutoff = Date.now() - S.user.settings.forgottenDays * 86400000;
@@ -32,7 +42,7 @@ export function exploreData() {
   const day = Math.floor(Date.now() / 86400000);
   const never = shuffle(withStats.filter((x) => x.n === 0), rng(day)).slice(0, 24);
   const songs = shuffle(randomSongIds(), rng(randomSeed)).slice(0, 14);
-  return { top, fresh, forgotten, never, songs };
+  return { top, topArtists, fresh, forgotten, never, songs };
 }
 
 function albumRow(a, meta, hero = false) {
@@ -40,6 +50,20 @@ function albumRow(a, meta, hero = false) {
     <div class="art-wrap">${artHtml(a, '', !hero)}<button class="play-fab" data-act="play-album" data-key="${a.key}" title="Play">${icon('play')}</button></div>
     <div class="xtext"><div class="at">${esc(a.title)}</div><div class="aa">${esc(a.artist)}</div><div class="am">${esc(meta)}</div></div>
   </div>`;
+}
+
+function artistRow({ artist, n }, index) {
+  const img = artistImage(artist.name);
+  const art = img
+    ? `<img class="art" src="${esc(img)}" loading="lazy" decoding="async" alt="">`
+    : placeholder(artist.name);
+  return `<button type="button" class="xrow artist-xrow" data-act="artist" data-name="${esc(artist.name)}" data-ctx="artist" title="Open ${esc(artist.name)}">
+    <div class="art-wrap">${art}</div>
+    <div class="xtext"><div class="at">${esc(artist.name)}</div>
+      <div class="aa">${artist.albums.length} album${artist.albums.length === 1 ? '' : 's'}</div>
+      <div class="am">#${index + 1} · ${n} play${n === 1 ? '' : 's'}</div>
+    </div>
+  </button>`;
 }
 
 function playlistRow(p, meta, hero = false) {
@@ -57,6 +81,10 @@ function column(id, ic, title, sub, items, empty) {
         <option value="">All songs</option>${randomChoices().map((v) => `<option value="${esc(v)}"${S.ui.randomFilter === v ? ' selected' : ''}>${esc(v.startsWith('genre:') ? 'Genre: ' + v.slice(6) : 'Mood: ' + v.slice(5))}</option>`).join('')}</select>`
         : `<button class="qp" data-act="quickplay" data-col="${id}" title="Quick play">${icon('play')}</button>`}
     </header>
+    ${id === 'new' ? `<div class="xcol-switch" role="group" aria-label="Choose Explore panel">
+      <button type="button" data-act="explore-new-panel" data-v="new" class="${S.ui.exploreNewPanel === 'artists' ? '' : 'on'}" aria-pressed="${S.ui.exploreNewPanel === 'artists' ? 'false' : 'true'}">Newly Added</button>
+      <button type="button" data-act="explore-new-panel" data-v="artists" class="${S.ui.exploreNewPanel === 'artists' ? 'on' : ''}" aria-pressed="${S.ui.exploreNewPanel === 'artists' ? 'true' : 'false'}">Top Artists</button>
+    </div>` : ''}
     <div class="xlist">${items || `<div class="empty">${empty}</div>`}</div>
   </section>`;
 }
@@ -73,6 +101,8 @@ export function renderExplore(el) {
   const plays = (n) => `${n} play${n === 1 ? '' : 's'}`;
   const topItems = d.top.map((x, i) => albumRow(x.a, `#${i + 1} · ${plays(x.n)}`, i === 0)).join('');
   const newItems = d.fresh.map((a, i) => albumRow(a, `Added ${fmtDate(a.addedAt)}`, i === 0)).join('');
+  const artistItems = d.topArtists.map((item, i) => artistRow(item, i)).join('');
+  const showTopArtists = S.ui.exploreNewPanel === 'artists';
   const forgotItems = d.forgotten.map((x, i) => albumRow(x.a, `${plays(x.n)} · last ${fmtAgo(x.last)}`, i === 0)).join('');
   const neverItems = d.never.map((x, i) => albumRow(x.a, albumMeta(x.a), i === 0)).join('');
   const songItems = d.songs.map((id) => {
@@ -87,8 +117,8 @@ export function renderExplore(el) {
     ${songItems}<button class="btn ghost reroll" data-act="reroll">${icon('refresh')}Deal new songs</button>`;
 
   el.innerHTML = `<div class="explore">
-    ${column('top', 'flame', 'Most Played', 'Your top 25 albums', topItems, 'Albums you play most will rank here.')}
-    ${column('new', 'sparkle', 'Newly Added', 'Fresh in the library', newItems, '')}
+    ${column('top', 'flame', 'Most Played', 'Your top 50 albums', topItems, 'Albums you play most will rank here.')}
+    ${column('new', showTopArtists ? 'clef' : 'sparkle', showTopArtists ? 'Top Artists' : 'Newly Added', showTopArtists ? '25 most played Album Artists' : 'Fresh in the library', showTopArtists ? artistItems : newItems, showTopArtists ? 'Play music to rank your Album Artists here.' : '')}
     ${column('forgotten', 'hourglass', 'Forgotten Listens', `Loved, but not for ${S.user.settings.forgottenDays}+ days`, forgotItems, `Albums you've played before but haven't heard in ${S.user.settings.forgottenDays} days show up here.`)}
     ${column('never', 'headphones', 'Never Played', 'Albums waiting for a first spin', neverItems, 'You have played every album. Impressive.')}
     ${column('random', 'dice', 'Random Song', 'Feeling lucky?', randomCol, '')}
