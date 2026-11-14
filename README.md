@@ -1,10 +1,16 @@
-> **Gatefold v1.1.6:** Explore now ranks up to 50 Most Played albums and offers a Newly Added / Top Artists switch. Top Artists ranks 25 Album Artists by total track plays, with click-through to each artist's album page. Existing desktop features and the Android PWA are preserved.
+> **Gatefold v1.1.7:** Explore's Most Played top 50 albums are ranked by total minutes listened, calculated from each song's length multiplied by its play count. Top Artists and the other panels retain their existing rankings and behavior.
 
 # Gatefold
 
 An album-first music player for Windows and Linux. Gatefold is built around albums rather than single songs: big cover art, track lists grouped by disc, and quick ways to rediscover albums you haven't played in a while.
 
 ---
+
+## What's new in 1.1.7
+
+- **Explore → Most Played (top 50 albums):** Rank albums by **total time listened**, calculated as the sum of `song duration in seconds × song play count` for every track. Sort using the exact total seconds, then display the rounded total as **minutes played**.
+- A long album with fewer plays may rank above a shorter album with more plays if its cumulative listening time is higher. Unplayed albums and albums without measurable listening duration do not rank.
+- **Unchanged:** The 25 **Top Artists** still rank by number of plays, and Newly Added, Forgotten Listens, Never Played, Random Song, and other desktop and Android features remain unchanged.
 
 ## What's new in 1.1.6
 
@@ -31,7 +37,7 @@ An album-first music player for Windows and Linux. Gatefold is built around albu
 This modified source package includes `BUILD_WINDOWS_INSTALLER.cmd`.
 On a 64-bit Windows 10 or 11 PC, extract the ZIP and double-click that
 file. The script downloads the necessary tools, runs the tests and
-attempts to create `Gatefold-Setup-1.1.6.exe` alongside it. An internet
+attempts to create `Gatefold-Setup-1.1.7.exe` alongside it. An internet
 connection is required. See `HOW_TO_CREATE_INSTALLER.txt` for details.
 
 **This ZIP is not itself an installer.** A Windows build must succeed before
@@ -42,9 +48,9 @@ Windows in the environment where the modification was prepared.
 
 ## Installing on Windows
 
-**Download Gatefold v1.1.6 from the successful Windows installer GitHub Actions workflow (Actions → Windows installer (CI) → Artifacts).** A release may also be published after a version tag is built.
+**Download Gatefold v1.1.7 from the successful Windows installer GitHub Actions workflow (Actions → Windows installer (CI) → Artifacts).** A release may also be published after a version tag is built.
 
-1. Download the `Gatefold-Setup-Windows` artifact from the latest successful [Windows installer workflow](https://github.com/danadamson7/gatefold/actions/workflows/build-windows-installer.yml); extract its ZIP to find `Gatefold-Setup-1.1.6.exe`.
+1. Download the `Gatefold-Setup-Windows` artifact from the latest successful [Windows installer workflow](https://github.com/danadamson7/gatefold/actions/workflows/build-windows-installer.yml); extract its ZIP to find `Gatefold-Setup-1.1.7.exe`.
 2. Double-click the downloaded file.
 3. Windows may show a blue **"Windows protected your PC"** box. This happens because the app isn't signed with a paid certificate, not because anything is wrong. Click **More info**, then **Run anyway**.
 4. Choose whether to install for just you or everyone, pick a folder (the default is fine), and click **Install**.
@@ -120,7 +126,7 @@ Whenever a commit is pushed to `main`, GitHub Actions will try to build the Wind
 
 1. Open [Windows installer (CI)](https://github.com/danadamson7/gatefold/actions/workflows/build-windows-installer.yml).
 2. Open the latest successful run and download the `Gatefold-Setup-Windows` artifact.
-3. Extract its ZIP and run `Gatefold-Setup-1.1.6.exe` on Windows.
+3. Extract its ZIP and run `Gatefold-Setup-1.1.7.exe` on Windows.
 
 The executable is not code-signed, so Windows SmartScreen may show a warning. The existing `release.yml` builds Windows and Linux release packages from version tags. For v1.0.6, update the version in `package.json` and `package-lock.json` and publish the new code using the same GitHub repository.
 

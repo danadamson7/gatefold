@@ -101,6 +101,6 @@ test('Existing artist navigation and view-aware Quick Play are wired to the pane
 test('Most Played ranks at most 50 albums and labels the updated limit', () => {
   const src = readFileSync(resolve('src/renderer/js/views/explore.js'), 'utf8');
   assert.match(src, /\.slice\(0, 50\)/);
-  assert.match(src, /Your top 50 albums/);
+  assert.match(src, /Top 50 by minutes listened/);
   assert.match(src, /\.slice\(0, 25\)/);
 });

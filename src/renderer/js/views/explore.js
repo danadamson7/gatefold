@@ -20,11 +20,21 @@ export function randomSongIds() {
 
 export const rerollRandom = () => { randomSeed = Date.now(); };
 
+// Minutes listened are based on track durations and recorded play counts,
+ // not on the number of times an album appears in the play history.
+export function albumListeningSeconds(album) {
+  return album.tracks.reduce((total, track) =>
+    total + Math.max(0, Number(trackStats(track.id).n) || 0) *
+      Math.max(0, Number(track.duration) || 0), 0);
+}
+
 export function exploreData() {
   const albums = S.albumList;
   const withStats = albums.map((a) => ({ a, ...albumStats(a) }));
-  const top = withStats.filter((x) => x.n > 0)
-    .sort((x, y) => y.n - x.n || x.a.title.localeCompare(y.a.title) || x.a.key.localeCompare(y.a.key))
+  const top = withStats.map((x) => ({ ...x, listenedSeconds: albumListeningSeconds(x.a) }))
+    .filter((x) => x.listenedSeconds > 0)
+    .sort((x, y) => y.listenedSeconds - x.listenedSeconds ||
+      x.a.title.localeCompare(y.a.title) || x.a.key.localeCompare(y.a.key))
     .slice(0, 50);
   const playsByAlbum = new Map(withStats.map(({ a, n }) => [a.key, n]));
   // Full album play totals count toward each credited Album Artist, including semicolon-separated co-credits.
@@ -99,7 +109,7 @@ export function renderExplore(el) {
   }
   const d = exploreData();
   const plays = (n) => `${n} play${n === 1 ? '' : 's'}`;
-  const topItems = d.top.map((x, i) => albumRow(x.a, `#${i + 1} · ${plays(x.n)}`, i === 0)).join('');
+  const topItems = d.top.map((x, i) => albumRow(x.a, `#${i + 1} · ${Math.round(x.listenedSeconds / 60)} min played`, i === 0)).join('');
   const newItems = d.fresh.map((a, i) => albumRow(a, `Added ${fmtDate(a.addedAt)}`, i === 0)).join('');
   const artistItems = d.topArtists.map((item, i) => artistRow(item, i)).join('');
   const showTopArtists = S.ui.exploreNewPanel === 'artists';
@@ -117,7 +127,7 @@ export function renderExplore(el) {
     ${songItems}<button class="btn ghost reroll" data-act="reroll">${icon('refresh')}Deal new songs</button>`;
 
   el.innerHTML = `<div class="explore">
-    ${column('top', 'flame', 'Most Played', 'Your top 50 albums', topItems, 'Albums you play most will rank here.')}
+    ${column('top', 'flame', 'Most Played', 'Top 50 by minutes listened', topItems, 'Albums you play most will rank here.')}
     ${column('new', showTopArtists ? 'clef' : 'sparkle', showTopArtists ? 'Top Artists' : 'Newly Added', showTopArtists ? '25 most played Album Artists' : 'Fresh in the library', showTopArtists ? artistItems : newItems, showTopArtists ? 'Play music to rank your Album Artists here.' : '')}
     ${column('forgotten', 'hourglass', 'Forgotten Listens', `Loved, but not for ${S.user.settings.forgottenDays}+ days`, forgotItems, `Albums you've played before but haven't heard in ${S.user.settings.forgottenDays} days show up here.`)}
     ${column('never', 'headphones', 'Never Played', 'Albums waiting for a first spin', neverItems, 'You have played every album. Impressive.')}
