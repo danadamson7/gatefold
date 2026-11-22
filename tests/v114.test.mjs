@@ -41,7 +41,7 @@ test('alternative 2:1 backdrop is 1.6 times as large and bottom-centered', () =>
   assert.match(styles[0], /1760px/);
   assert.match(styles[0], /aspect-ratio:\s*2 \/ 1/);
   assert.doesNotMatch(styles[0], /top:\s*50%/);
-  assert.match(album, /\$\{altBackground\}\s*<button class="close-x"/);
+  assert.match(album, /\$\{altBackground\}\s*\$\{artistsLayout/);
 });
 
 test('Now Playing center cover scales 109 percent without a vertical scrollbar', () => {

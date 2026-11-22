@@ -36,8 +36,8 @@ test('rendered playlist has left-side cover + controls and right-side interactiv
     ui: { playlist: 'road' },
     tracks: new Map([['t1', { id: 't1', title: 'First Song', artist: 'Sample Artist', albumTitle: 'Sample Album', duration: 180 }]]),
   };
-  const el = { innerHTML: '', querySelectorAll: () => [] };
-  const script = js.replace(/^import .*;\s*$/gm, '').replace(/^export function renderPlaylists/m, 'function renderPlaylists') + '\nrenderPlaylists(el);';
+  const el = { innerHTML: '', querySelector: () => null, querySelectorAll: () => [] };
+  const script = js.replace(/^import .*;\s*$/gm, '').replace(/^export /gm, '') + '\nrenderPlaylists(el);';
   runInNewContext(script, {
     S, el, playlist: (id) => S.user.playlists.find((x) => x.id === id),
     playlistArtHtml: () => '<div class="art">Preview</div>',
