@@ -45,7 +45,7 @@ export function albumDetail(a, { artistsLayout = false } = {}) {
     ? `<div class="av-alt-backdrop" aria-hidden="true"><img src="custom/${esc(alternate)}" alt=""></div>` : '';
   return `<div class="album-view${artistsLayout ? ' artist-album-view' : ''}" data-key="${a.key}">
     ${altBackground}
-    <button class="close-x" data-act="close-album" title="Close (Esc)">${icon('close')}</button>
+    ${artistsLayout ? '' : `<button class="close-x" data-act="close-album" title="Close (Esc)">${icon('close')}</button>`}
     <div class="av-side${artistsLayout ? ' av-side-hidden' : ''}">
       <div class="av-art" data-ctx="album" data-key="${a.key}">${artHtml(a, 'big', false)}</div>
       <div class="av-facts">

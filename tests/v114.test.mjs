@@ -52,12 +52,12 @@ test('Now Playing center cover scales 109 percent without a vertical scrollbar',
   assert.match(css, /\.np-center\s*\{[^}]*overflow-y:\s*hidden/);
 });
 
-test('package and Windows installer version match Gatefold 1.1.7', () => {
+test('package and Windows installer version match Gatefold 1.1.8', () => {
   const pkg = JSON.parse(read('package.json'));
   const lock = JSON.parse(read('package-lock.json'));
-  assert.equal(pkg.version, '1.1.7');
-  assert.equal(lock.version, '1.1.7');
-  assert.equal(lock.packages[''].version, '1.1.7');
-  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.7\.exe/);
-  assert.match(read('scripts/Build-Windows.ps1'), /Gatefold-Setup-1\.1\.7\.exe/);
+  assert.equal(pkg.version, '1.1.8');
+  assert.equal(lock.version, '1.1.8');
+  assert.equal(lock.packages[''].version, '1.1.8');
+  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.8\.exe/);
+  assert.match(read('scripts/Build-Windows.ps1'), /Gatefold-Setup-1\.1\.8\.exe/);
 });

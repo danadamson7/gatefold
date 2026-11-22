@@ -52,11 +52,11 @@ test('Most Played ranks by duration multiplied by individual song plays, not raw
   ]);
   assert.deepEqual(d.top.map(x => x.listenedSeconds), [1200, 1140, 600]);
   assert.equal(explore.albumListeningSeconds(S.albums.get('Multiple songs')), 1140);
-  // Top Artists is still ranked by play counts, not listening time.
-  assert.equal(d.topArtists[0].artist.name, 'Fast Artist');
-  assert.equal(d.topArtists[0].n, 20);
-  assert.equal(d.topArtists[1].artist.name, 'Unknown Artist');
-  assert.equal(d.topArtists[1].n, 8);
+  // Top Artists now also uses listening time (shared by each credited artist).
+  assert.equal(d.topArtists[0].artist.name, 'Slow Artist');
+  assert.equal(d.topArtists[0].listenedSeconds, 1200);
+  assert.equal(d.topArtists[1].artist.name, 'Mixed Artist');
+  assert.equal(d.topArtists[1].listenedSeconds, 1140);
 });
 
 test('Most Played displays rounded minutes, and keeps the fifty-album limit', () => {
@@ -68,7 +68,7 @@ test('Most Played displays rounded minutes, and keeps the fifty-album limit', ()
   explore.renderExplore(el);
   const panel = el.innerHTML.match(/<section class="xcol" data-col="top">([\s\S]*?)<\/section>/)?.[1];
   assert.ok(panel);
-  assert.match(panel, /Top 50 by minutes listened/);
+  assert.match(panel, /Top by minutes listened/);
   assert.match(panel, /#1 · 6 min played/);
   assert.match(panel, /#2 · 1 min played/);
   assert.doesNotMatch(panel, /#1 · 3 plays/);
@@ -92,17 +92,17 @@ test('Listening time handles empty/missing durations and leaves other Explore li
   assert.equal(d.top[0].listenedSeconds, 150);
   assert.equal(d.fresh.length, 3);
   assert.equal(d.never.length, 0);
-  assert.ok(d.topArtists.some(x => x.artist.name === 'Two' && x.n === 10));
+  assert.ok(!d.topArtists.some(x => x.artist.name === 'Two'));
 });
 
-test('Windows installer, lockfile and export metadata use version 1.1.7', () => {
+test('Windows installer, lockfile and export metadata use version 1.1.8', () => {
   const read = p => readFileSync(resolve(p), 'utf8');
   const pkg = JSON.parse(read('package.json'));
   const lock = JSON.parse(read('package-lock.json'));
-  assert.equal(pkg.version, '1.1.7');
-  assert.equal(lock.version, '1.1.7');
-  assert.equal(lock.packages[''].version, '1.1.7');
-  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.7\.exe/);
-  assert.match(read('scripts/Build-Windows.ps1'), /Gatefold-Setup-1\.1\.7\.exe/);
-  assert.match(read('src/renderer/js/transfer.js'), /appVersion: '1\.1\.7'/);
+  assert.equal(pkg.version, '1.1.8');
+  assert.equal(lock.version, '1.1.8');
+  assert.equal(lock.packages[''].version, '1.1.8');
+  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.8\.exe/);
+  assert.match(read('scripts/Build-Windows.ps1'), /Gatefold-Setup-1\.1\.8\.exe/);
+  assert.match(read('src/renderer/js/transfer.js'), /appVersion: '1\.1\.8'/);
 });

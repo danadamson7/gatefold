@@ -14,15 +14,18 @@ export const S = {
 };
 
 export const SONG_COLUMNS = ['title', 'artist', 'albumArtist', 'album', 'year', 'track', 'disc', 'duration', 'plays',
-  'genre', 'mood', 'lastPlayed', 'added', 'format'];
+  'lastPlayed', 'genre', 'mood', 'added', 'format'];
 
 const DEFAULT_USER = () => ({
   settings: {
     folders: [],
     mergeDiscs: true,
     forgottenDays: 60,
+    mostPlayedLimit: 50,
+    topArtistsLimit: 25,
+    lastPlayedColumnMigrated: false,
     artistSort: 'alpha',
-    songColumns: ['title', 'artist', 'albumArtist', 'album', 'year', 'duration', 'plays', 'genre'],
+    songColumns: ['title', 'artist', 'albumArtist', 'album', 'year', 'duration', 'plays', 'lastPlayed', 'genre'],
     songSort: { key: 'albumArtist', dir: 1 },
   },
   stats: { tracks: {}, playlists: {} },
@@ -47,8 +50,23 @@ function merge(base, extra) {
   return base;
 }
 
+// Add Last Played once for older installations, respecting later column preferences.
+export function migrateLastPlayedColumn(settings) {
+  if (settings.lastPlayedColumnMigrated) return false;
+  const columns = settings.songColumns;
+  if (!Array.isArray(columns)) return false;
+  const oldIndex = columns.indexOf('lastPlayed');
+  if (oldIndex !== -1) columns.splice(oldIndex, 1);
+  const plays = columns.indexOf('plays');
+  const genre = columns.indexOf('genre');
+  columns.splice(plays >= 0 ? plays + 1 : genre >= 0 ? genre : columns.length, 0, 'lastPlayed');
+  settings.lastPlayedColumnMigrated = true;
+  return true;
+}
+
 export async function loadUser() {
   S.user = merge(DEFAULT_USER(), await window.gf.getUser());
+  if (migrateLastPlayedColumn(S.user.settings)) saveUser();
 }
 
 export const saveUser = debounce(() => window.gf.saveUser(JSON.stringify(S.user)), 700);

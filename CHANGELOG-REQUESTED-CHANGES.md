@@ -1,3 +1,15 @@
+# Gatefold 1.1.8 — Customizable Explore rankings, song timestamps, playlist order, and Artist return rail
+
+- Explore Most Played and Top Artists subtitles become **Top by minutes listened** and **Top most played Album Artists**.
+- Settings → Explore supports editable ranking lengths: 1–500 albums (50 default) and 1–250 Album Artists (25 default), saved per installation.
+- Top Artists now sums actual track listening time (plays × song duration), ranked by cumulative seconds and displaying rounded minutes. Shared Album Artist credits contribute to each credited artist; Most Played remains ranked by minutes as in 1.1.7.
+- Songs page displays Last Played immediately after Plays and before Genre by default, migrating existing column configurations once without overriding later changes.
+- Playlist entries in the left sidebar support saved drag-and-drop reordering and accessible up/down buttons, independently of playlist track ordering.
+- Artists selected album detail replaces the top-right X with a full-height far-right Album Artist return rail; pressing it opens the selected Album Artist's grid.
+- Package, Windows setup scripts, metadata export version, and regression tests updated to 1.1.8; Android PWA unchanged.
+
+---
+
 # Gatefold 1.1.7 — Most Played ranking by total minutes listened
 
 - **Explore → Most Played:** Keep the top-50 album limit, but calculate listening time by summing `track.duration × number of plays of that track` across the album.

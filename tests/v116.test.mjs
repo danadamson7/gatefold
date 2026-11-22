@@ -33,7 +33,7 @@ function seed(tracks) {
   S.ui.randomFilter = '';
 }
 
-test('Top Artists sums full credited album plays, including semicolon-separated co-artists', () => {
+test('Top Artists sums listening time across credited albums, including semicolon-separated co-artists', () => {
   seed([
     song('joint', 'Joint Album', 'Alpha; Beta', 10),
     song('solo-a', 'Alpha Solo', 'Alpha', 5),
@@ -42,15 +42,15 @@ test('Top Artists sums full credited album plays, including semicolon-separated 
     song('unplayed', 'Unplayed Album', 'Delta', 0),
   ]);
   const artists = explore.exploreData().topArtists;
-  assert.deepEqual(artists.map(x => [x.artist.name, x.n]), [
-    ['Alpha', 15], ['Beta', 12], ['Gamma', 8],
+  assert.deepEqual(artists.map(x => [x.artist.name, x.listenedSeconds]), [
+    ['Alpha', 2700], ['Beta', 2160], ['Gamma', 1440],
   ]);
   assert.equal(artists[0].artist.albums.length, 2);
   assert.equal(artists[1].artist.albums.length, 2);
   assert.equal(artists.some(x => x.artist.name === 'Delta'), false);
 });
 
-test('Top Artists includes at most 25, sorted by number of plays', () => {
+test('Top Artists includes at most 25, sorted by listening duration', () => {
   seed(Array.from({ length: 30 }, (_, i) => song(
     'song-' + i, 'Album ' + i, 'Artist ' + i, 30 - i
   )));
@@ -58,7 +58,7 @@ test('Top Artists includes at most 25, sorted by number of plays', () => {
   assert.equal(artists.length, 25);
   assert.equal(artists[0].artist.name, 'Artist 0');
   assert.equal(artists[24].artist.name, 'Artist 24');
-  assert.ok(artists.every((x, i) => i === 0 || x.n <= artists[i - 1].n));
+  assert.ok(artists.every((x, i) => i === 0 || x.listenedSeconds <= artists[i - 1].listenedSeconds));
 });
 
 test('Newly Added is the default and switches to clickable Top Artists, then back', () => {
@@ -79,9 +79,9 @@ test('Newly Added is the default and switches to clickable Top Artists, then bac
   explore.renderExplore(el);
   panel = secondPanel();
   assert.match(panel, /<h2>Top Artists<\/h2>/);
-  assert.match(panel, /25 most played Album Artists/);
+  assert.match(panel, /Top most played Album Artists/);
   assert.match(panel, /data-act="artist" data-name="Alpha"/);
-  assert.match(panel, /#1 · 15 plays/);
+  assert.match(panel, /#1 · 45 min played/);
   assert.match(panel, /data-act="explore-new-panel" data-v="artists" class="on" aria-pressed="true"/);
   S.ui.exploreNewPanel = 'new';
   explore.renderExplore(el);
@@ -98,9 +98,9 @@ test('Existing artist navigation and view-aware Quick Play are wired to the pane
   assert.match(app, /player.playList\(artistIds\(first.name\)/);
 });
 
-test('Most Played ranks at most 50 albums and labels the updated limit', () => {
+test('Most Played supports configurable album limits and labels the duration metric', () => {
   const src = readFileSync(resolve('src/renderer/js/views/explore.js'), 'utf8');
-  assert.match(src, /\.slice\(0, 50\)/);
-  assert.match(src, /Top 50 by minutes listened/);
-  assert.match(src, /\.slice\(0, 25\)/);
+  assert.match(src, /\.slice\(0, mostPlayedLimit\)/);
+  assert.match(src, /Top by minutes listened/);
+  assert.match(src, /\.slice\(0, topArtistsLimit\)/);
 });

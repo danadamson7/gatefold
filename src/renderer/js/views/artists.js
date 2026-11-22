@@ -1,6 +1,6 @@
 // ARTISTS: album-artist sidebar + album grid / album detail.
 import { S, artistImage, byYear, placeholder } from '../store.js';
-import { esc, fmtHours, sortKey } from '../util.js';
+import { esc, fmtHours, sortKey, albumArtistNames } from '../util.js';
 import { icon } from '../icons.js';
 import { albumCard, albumDetail, tintAlbum } from './album.js';
 
@@ -61,7 +61,16 @@ export function renderArtists(el) {
   const sideScroll = prevList?.scrollTop || 0;
   const hadFocus = prevList?.contains(document.activeElement) || prevList === document.activeElement;
   const a = S.ui.album && S.albums.get(S.ui.album);
-  el.innerHTML = `<div class="split">${sidebar()}<div class="content" id="artists-content">${a ? albumDetail(a, { artistsLayout: true }) : grid()}</div></div>`;
+  const backArtist = a ? (S.ui.artist && S.artists.has(S.ui.artist)
+    ? S.ui.artist : albumArtistNames(a.artist)[0] || 'Unknown Artist') : '';
+  const albumPage = a ? `<div class="artist-album-shell">
+    ${albumDetail(a, { artistsLayout: true })}
+    <button type="button" class="artist-return-rail" data-act="artist" data-name="${esc(backArtist)}"
+      title="Back to ${esc(backArtist)}" aria-label="Back to Album Artist: ${esc(backArtist)}">
+      ${icon('back')}<span class="artist-return-name">${esc(backArtist)}</span>
+    </button>
+  </div>` : grid();
+  el.innerHTML = `<div class="split">${sidebar()}<div class="content" id="artists-content">${albumPage}</div></div>`;
   const list = el.querySelector('.side-list');
   list.scrollTop = sideScroll;
   list.addEventListener('pointerdown', (e) => {

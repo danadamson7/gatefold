@@ -20,6 +20,12 @@ export function randomSongIds() {
 
 export const rerollRandom = () => { randomSeed = Date.now(); };
 
+// Configurable Explore list sizes; legacy libraries default to the original 50/25 limits.
+export const exploreLimit = (value, fallback, maximum) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 1 ? Math.min(maximum, Math.floor(n)) : fallback;
+};
+
 // Minutes listened are based on track durations and recorded play counts,
  // not on the number of times an album appears in the play history.
 export function albumListeningSeconds(album) {
@@ -31,21 +37,23 @@ export function albumListeningSeconds(album) {
 export function exploreData() {
   const albums = S.albumList;
   const withStats = albums.map((a) => ({ a, ...albumStats(a) }));
-  const top = withStats.map((x) => ({ ...x, listenedSeconds: albumListeningSeconds(x.a) }))
-    .filter((x) => x.listenedSeconds > 0)
+  const mostPlayedLimit = exploreLimit(S.user.settings?.mostPlayedLimit, 50, 500);
+  const topArtistsLimit = exploreLimit(S.user.settings?.topArtistsLimit, 25, 250);
+  const withListeningTime = withStats.map((x) => ({ ...x, listenedSeconds: albumListeningSeconds(x.a) }));
+  const top = withListeningTime.filter((x) => x.listenedSeconds > 0)
     .sort((x, y) => y.listenedSeconds - x.listenedSeconds ||
       x.a.title.localeCompare(y.a.title) || x.a.key.localeCompare(y.a.key))
-    .slice(0, 50);
-  const playsByAlbum = new Map(withStats.map(({ a, n }) => [a.key, n]));
-  // Full album play totals count toward each credited Album Artist, including semicolon-separated co-credits.
+    .slice(0, mostPlayedLimit);
+  const secondsByAlbum = new Map(withListeningTime.map(({ a, listenedSeconds }) => [a.key, listenedSeconds]));
+  // Every credited Album Artist receives that album's listened time; co-credit albums count once per artist.
   const topArtists = [...S.artists.values()]
     .map((artist) => ({
       artist,
-      n: artist.albums.reduce((total, a) => total + (playsByAlbum.get(a.key) || 0), 0),
+      listenedSeconds: artist.albums.reduce((total, a) => total + (secondsByAlbum.get(a.key) || 0), 0),
     }))
-    .filter(({ n }) => n > 0)
-    .sort((x, y) => y.n - x.n || x.artist.name.localeCompare(y.artist.name))
-    .slice(0, 25);
+    .filter(({ listenedSeconds }) => listenedSeconds > 0)
+    .sort((x, y) => y.listenedSeconds - x.listenedSeconds || x.artist.name.localeCompare(y.artist.name))
+    .slice(0, topArtistsLimit);
   const fresh = [...albums].sort((x, y) => y.addedAt - x.addedAt).slice(0, 24);
   const cutoff = Date.now() - S.user.settings.forgottenDays * 86400000;
   const forgotten = withStats.filter((x) => x.n > 0 && x.last < cutoff).sort((x, y) => y.n - x.n || x.last - y.last).slice(0, 24);
@@ -62,7 +70,7 @@ function albumRow(a, meta, hero = false) {
   </div>`;
 }
 
-function artistRow({ artist, n }, index) {
+function artistRow({ artist, listenedSeconds }, index) {
   const img = artistImage(artist.name);
   const art = img
     ? `<img class="art" src="${esc(img)}" loading="lazy" decoding="async" alt="">`
@@ -71,7 +79,7 @@ function artistRow({ artist, n }, index) {
     <div class="art-wrap">${art}</div>
     <div class="xtext"><div class="at">${esc(artist.name)}</div>
       <div class="aa">${artist.albums.length} album${artist.albums.length === 1 ? '' : 's'}</div>
-      <div class="am">#${index + 1} · ${n} play${n === 1 ? '' : 's'}</div>
+      <div class="am">#${index + 1} · ${Math.round(listenedSeconds / 60)} min played</div>
     </div>
   </button>`;
 }
@@ -127,8 +135,8 @@ export function renderExplore(el) {
     ${songItems}<button class="btn ghost reroll" data-act="reroll">${icon('refresh')}Deal new songs</button>`;
 
   el.innerHTML = `<div class="explore">
-    ${column('top', 'flame', 'Most Played', 'Top 50 by minutes listened', topItems, 'Albums you play most will rank here.')}
-    ${column('new', showTopArtists ? 'clef' : 'sparkle', showTopArtists ? 'Top Artists' : 'Newly Added', showTopArtists ? '25 most played Album Artists' : 'Fresh in the library', showTopArtists ? artistItems : newItems, showTopArtists ? 'Play music to rank your Album Artists here.' : '')}
+    ${column('top', 'flame', 'Most Played', 'Top by minutes listened', topItems, 'Albums you play most will rank here.')}
+    ${column('new', showTopArtists ? 'clef' : 'sparkle', showTopArtists ? 'Top Artists' : 'Newly Added', showTopArtists ? 'Top most played Album Artists' : 'Fresh in the library', showTopArtists ? artistItems : newItems, showTopArtists ? 'Play music to rank your Album Artists here.' : '')}
     ${column('forgotten', 'hourglass', 'Forgotten Listens', `Loved, but not for ${S.user.settings.forgottenDays}+ days`, forgotItems, `Albums you've played before but haven't heard in ${S.user.settings.forgottenDays} days show up here.`)}
     ${column('never', 'headphones', 'Never Played', 'Albums waiting for a first spin', neverItems, 'You have played every album. Impressive.')}
     ${column('random', 'dice', 'Random Song', 'Feeling lucky?', randomCol, '')}

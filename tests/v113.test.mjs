@@ -9,7 +9,7 @@ const playlist = read('src/renderer/js/views/playlists.js');
 
 test('alternative art belongs to album canvas, not track panel', () => {
   assert.match(album, /const altBackground = alternate/);
-  assert.match(album, /data-key="\$\{a.key\}">\s*\$\{altBackground\}\s*<button class="close-x"/);
+  assert.match(album, /data-key="\$\{a.key\}">\s*\$\{altBackground\}\s*\$\{artistsLayout/);
   assert.match(album, /<div class="av-track-panel">\s*<div class="tracks">/);
   assert.doesNotMatch(album, /av-track-panel\$\{alternate|with-alt-art/);
   assert.match(css, /#page-artists \.artist-album-view\s*\{[^}]*position: relative; isolation: isolate/);
