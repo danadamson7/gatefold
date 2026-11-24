@@ -95,14 +95,14 @@ test('Listening time handles empty/missing durations and leaves other Explore li
   assert.ok(!d.topArtists.some(x => x.artist.name === 'Two'));
 });
 
-test('Windows installer, lockfile and export metadata use version 1.1.8', () => {
+test('Windows installer, lockfile and export metadata use version 1.1.9', () => {
   const read = p => readFileSync(resolve(p), 'utf8');
   const pkg = JSON.parse(read('package.json'));
   const lock = JSON.parse(read('package-lock.json'));
-  assert.equal(pkg.version, '1.1.8');
-  assert.equal(lock.version, '1.1.8');
-  assert.equal(lock.packages[''].version, '1.1.8');
-  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.8\.exe/);
-  assert.match(read('scripts/Build-Windows.ps1'), /Gatefold-Setup-1\.1\.8\.exe/);
-  assert.match(read('src/renderer/js/transfer.js'), /appVersion: '1\.1\.8'/);
+  assert.equal(pkg.version, '1.1.9');
+  assert.equal(lock.version, '1.1.9');
+  assert.equal(lock.packages[''].version, '1.1.9');
+  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.9\.exe/);
+  assert.match(read('scripts/Build-Windows.ps1'), /Gatefold-Setup-1\.1\.9\.exe/);
+  assert.match(read('src/renderer/js/transfer.js'), /appVersion: '1\.1\.9'/);
 });

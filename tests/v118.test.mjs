@@ -139,13 +139,13 @@ test('Artists album detail uses the right-side clickable Album Artist strip, not
   assert.match(css, /#page-artists \.artist-return-rail\s*\{[^}]*height: 100%/);
 });
 
-test('Version and Windows setup are 1.1.8, Android PWA remains read-only', () => {
-  assert.equal(JSON.parse(read('package.json')).version, '1.1.8');
+test('Version and Windows setup are 1.1.9, Android PWA remains read-only', () => {
+  assert.equal(JSON.parse(read('package.json')).version, '1.1.9');
   const lock = JSON.parse(read('package-lock.json'));
-  assert.equal(lock.version, '1.1.8');
-  assert.equal(lock.packages[''].version, '1.1.8');
-  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.8\.exe/);
-  assert.match(read('scripts/Build-Windows.ps1'), /Gatefold-Setup-1\.1\.8\.exe/);
-  assert.match(read('src/renderer/js/transfer.js'), /appVersion: '1\.1\.8'/);
+  assert.equal(lock.version, '1.1.9');
+  assert.equal(lock.packages[''].version, '1.1.9');
+  assert.match(read('BUILD_WINDOWS_INSTALLER.cmd'), /Gatefold-Setup-1\.1\.9\.exe/);
+  assert.match(read('scripts/Build-Windows.ps1'), /Gatefold-Setup-1\.1\.9\.exe/);
+  assert.match(read('src/renderer/js/transfer.js'), /appVersion: '1\.1\.9'/);
   assert.doesNotMatch(read('pwa/index.html'), /album-props|song-props/);
 });

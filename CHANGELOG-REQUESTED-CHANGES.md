@@ -1,3 +1,13 @@
+# Gatefold 1.1.9 — Settings → Explore label cleanup
+
+- Preserve **"An album counts as a forgotten listen after [number] days"** and remove the trailing words "without a play".
+- Replace the ranking-limit labels with **"Albums most played ([number])"** and **"Top Artists displayed ([number])"**.
+- All Explore settings controls, saved data, numeric limits, default counts, duration-based analytics, and rankings remain unchanged.
+- No other application UI or analytics files changed. Windows installer, npm package, and export metadata version updated to **1.1.9**.
+- Android PWA unchanged.
+
+---
+
 # Gatefold 1.1.8 — Customizable Explore rankings, song timestamps, playlist order, and Artist return rail
 
 - Explore Most Played and Top Artists subtitles become **Top by minutes listened** and **Top most played Album Artists**.

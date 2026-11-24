@@ -407,9 +407,9 @@ export async function renderSettings(el = $('#settings'), handlers) {
       <label class="toggle"><input type="checkbox" data-merge ${s.mergeDiscs ? 'checked' : ''}><span></span>Combine “Disc 1 / Disc 2” folders into one album</label>
     </section>
     <section><h3>Explore</h3>
-      <label class="inline">An album counts as a <b>forgotten listen</b> after <input type="number" min="7" max="3650" data-forgot value="${s.forgottenDays}"> days without a play</label>
-      <label class="inline">Show the top <input type="number" min="1" max="500" step="1" data-most-played-limit value="${s.mostPlayedLimit ?? 50}"> albums under <b>Most Played</b></label>
-      <label class="inline">Show the top <input type="number" min="1" max="250" step="1" data-top-artists-limit value="${s.topArtistsLimit ?? 25}"> <b>Album Artists</b> under Top Artists</label>
+      <label class="inline">An album counts as a <b>forgotten listen</b> after <input type="number" min="7" max="3650" data-forgot value="${s.forgottenDays}"> days</label>
+      <label class="inline">Albums most played (<input type="number" min="1" max="500" step="1" data-most-played-limit value="${s.mostPlayedLimit ?? 50}">)</label>
+      <label class="inline">Top Artists displayed (<input type="number" min="1" max="250" step="1" data-top-artists-limit value="${s.topArtistsLimit ?? 25}">)</label>
     </section>
     <section><h3>Playlists</h3>
       <div class="row"><button class="btn ghost" data-m3u>${icon('folder')}Import .m3u playlists from music folders</button></div>
